@@ -72,14 +72,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Barad'dur" },
+      { name: "description", content: "Fellowship Flip Cup is a web app for a Lord of the Rings-themed drinking game." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Barad'dur" },
+      { property: "og:description", content: "Fellowship Flip Cup is a web app for a Lord of the Rings-themed drinking game." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Barad'dur" },
+      { name: "twitter:description", content: "Fellowship Flip Cup is a web app for a Lord of the Rings-themed drinking game." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/db0016ee-4ff9-4bb3-a4f9-4b973af59860/id-preview-7ca5461f--6279970b-9fee-4bf2-8a2c-4a6a9dd14105.lovable.app-1779615023768.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/db0016ee-4ff9-4bb3-a4f9-4b973af59860/id-preview-7ca5461f--6279970b-9fee-4bf2-8a2c-4a6a9dd14105.lovable.app-1779615023768.png" },
     ],
     links: [
       {
