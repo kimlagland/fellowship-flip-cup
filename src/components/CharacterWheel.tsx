@@ -58,7 +58,10 @@ export function CharacterWheel() {
 
     const targetSliceCenter = pick.i * slice + slice / 2;
     const fullSpins = 6 + Math.floor(Math.random() * 3);
-    const finalRotation = rotationRef.current + fullSpins * 360 + (360 - targetSliceCenter);
+    const currentMod = ((rotationRef.current % 360) + 360) % 360;
+    const desiredMod = ((360 - targetSliceCenter) % 360 + 360) % 360;
+    const delta = ((desiredMod - currentMod) + 360) % 360;
+    const finalRotation = rotationRef.current + fullSpins * 360 + delta;
     rotationRef.current = finalRotation;
 
     await controls.start({
