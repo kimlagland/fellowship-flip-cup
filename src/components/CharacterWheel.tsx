@@ -59,7 +59,7 @@ export function CharacterWheel() {
     const targetSliceCenter = pick.i * slice + slice / 2;
     const fullSpins = 6 + Math.floor(Math.random() * 3);
     const currentMod = ((rotationRef.current % 360) + 360) % 360;
-    const desiredMod = ((360 - targetSliceCenter) % 360 + 360) % 360;
+    const desiredMod = (((90 - targetSliceCenter) % 360) + 360) % 360;
     const delta = ((desiredMod - currentMod) + 360) % 360;
     const finalRotation = rotationRef.current + fullSpins * 360 + delta;
     rotationRef.current = finalRotation;
@@ -104,7 +104,27 @@ export function CharacterWheel() {
             <div key={i} className="flex gap-2">
               <Input
                 value={p}
+                data-player-index={i}
                 onChange={(e) => updatePlayer(i, e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return;
+                  e.preventDefault();
+                  if (!p.trim()) return;
+                  const focusNext = (idx: number) => {
+                    requestAnimationFrame(() => {
+                      const el = document.querySelector<HTMLInputElement>(
+                        `input[data-player-index="${idx}"]`,
+                      );
+                      el?.focus();
+                    });
+                  };
+                  if (i === players.length - 1) {
+                    setPlayers([...players, ""]);
+                    focusNext(i + 1);
+                  } else {
+                    focusNext(i + 1);
+                  }
+                }}
                 placeholder={`Spelare ${i + 1}`}
                 className="bg-input/60 border-border/60 font-body text-base h-11"
                 disabled={spinning || assignments.length > 0}
