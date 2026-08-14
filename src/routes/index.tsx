@@ -96,6 +96,16 @@ function Index() {
           </div>
         </RuleSection>
 
+        <RuleSection eyebrow="Viktigt" title="Regel om studs">
+          <ul className="space-y-2 list-disc list-outside pl-6">
+            <li>När en karaktär <strong>måste kasta med studs</strong> är studs obligatoriskt.</li>
+            <li>När en karaktär har <strong>1 studs</strong> måste bollen studsa exakt 1 gång innan den får träffa ett glas.</li>
+            <li>När en karaktär har <strong>2 studs</strong> måste bollen studsa exakt 2 gånger innan den får träffa ett glas.</li>
+            <li>När en karaktär <strong>måste kasta utan studs</strong> får bollen inte studsa innan den träffar glaset.</li>
+            <li>Om en karaktär inte har någon särskild regel om studs gäller spelets vanliga kastregler.</li>
+          </ul>
+        </RuleSection>
+
         <RuleSection eyebrow="Kapitel II" title="Dueller">
           <p>När bollen landar i en spelares glas startar en <strong className="text-accent">duell</strong>:</p>
           <ol className="space-y-2 list-decimal list-outside pl-6">
