@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { characters, factionLabel, type Character } from "@/data/characters";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,23 @@ interface Assignment {
   character: Character;
 }
 
+const ITEM_HEIGHT = 92; // px
+const VISIBLE_COUNT = 5;
+const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2);
+const SPIN_DURATION = 6.5; // seconds
+
 const factionColor = (f: Character["faction"]) =>
   f === "good" ? "var(--color-good)" : f === "evil" ? "var(--color-evil)" : "var(--color-neutral)";
+
+function generateReel(available: Character[], winner: Character, spinCount = 30): Character[] {
+  const reel: Character[] = [];
+  for (let i = 0; i < spinCount; i++) {
+    const randomChar = available[Math.floor(Math.random() * available.length)];
+    reel.push(randomChar);
+  }
+  reel.push(winner);
+  return reel;
+}
 
 export function CharacterWheel() {
   const [players, setPlayers] = useState<string[]>([""]);
@@ -19,13 +34,15 @@ export function CharacterWheel() {
   const [spinning, setSpinning] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [highlight, setHighlight] = useState<Character | null>(null);
+  const [reel, setReel] = useState<Character[]>([]);
   const controls = useAnimation();
-  const rotationRef = useRef(0);
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
 
-  const wheelChars = useMemo(() => characters, []);
-  const slice = 360 / wheelChars.length;
+  const previewChars = useMemo(() => {
+    const shuffled = [...characters].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, VISIBLE_COUNT);
+  }, []);
 
   const updatePlayer = (i: number, v: string) => {
     const next = [...players];
@@ -51,33 +68,32 @@ export function CharacterWheel() {
     setHighlight(null);
 
     const used = new Set(acc.map((a) => a.character.name));
-    const available = wheelChars
-      .map((c, i) => ({ c, i }))
-      .filter(({ c }) => !used.has(c.name));
+    const available = characters.filter((c) => !used.has(c.name));
     const pick = available[Math.floor(Math.random() * available.length)];
 
-    const targetSliceCenter = pick.i * slice + slice / 2;
-    const fullSpins = 6 + Math.floor(Math.random() * 3);
-    const currentMod = ((rotationRef.current % 360) + 360) % 360;
-    const desiredMod = (((90 - targetSliceCenter) % 360) + 360) % 360;
-    const delta = ((desiredMod - currentMod) + 360) % 360;
-    const finalRotation = rotationRef.current + fullSpins * 360 + delta;
-    rotationRef.current = finalRotation;
+    const reelSequence = generateReel(available, pick);
+    setReel(reelSequence);
+
+    // Reset reel to the top so the new sequence starts from the beginning.
+    controls.set({ y: 0 });
+
+    const finalIndex = reelSequence.length - 1;
+    const finalY = -(finalIndex * ITEM_HEIGHT) + CENTER_INDEX * ITEM_HEIGHT;
 
     await controls.start({
-      rotate: finalRotation,
-      transition: { duration: 4.5, ease: [0.17, 0.67, 0.21, 0.99] },
+      y: finalY,
+      transition: { duration: SPIN_DURATION, ease: [0.15, 0.8, 0.25, 1] },
     });
 
-    const newAssignment = { player: list[idx], character: pick.c };
+    const newAssignment = { player: list[idx], character: pick };
     const nextAcc = [...acc, newAssignment];
     setAssignments(nextAcc);
-    setHighlight(pick.c);
+    setHighlight(pick);
     setSpinning(false);
 
     if (idx + 1 < list.length) {
       setCurrentIdx(idx + 1);
-      await new Promise((r) => setTimeout(r, 1800));
+      await new Promise((r) => setTimeout(r, 2000));
       await spinOnce(list, idx + 1, nextAcc);
     }
   };
@@ -86,9 +102,14 @@ export function CharacterWheel() {
     setAssignments([]);
     setHighlight(null);
     setCurrentIdx(0);
+    setReel([]);
+    controls.set({ y: 0 });
   };
 
   const currentPlayer = validPlayers[currentIdx];
+
+  const displayedReel = reel.length > 0 ? reel : previewChars;
+  const isResultLocked = !spinning && highlight && reel.length > 0;
 
   return (
     <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] items-start">
@@ -196,7 +217,7 @@ export function CharacterWheel() {
         )}
       </div>
 
-      {/* Wheel */}
+      {/* Reel */}
       <div className="flex flex-col items-center gap-6">
         {currentPlayer && spinning && (
           <div className="text-center">
@@ -218,87 +239,96 @@ export function CharacterWheel() {
         )}
         {!currentPlayer && !highlight && (
           <div className="text-center">
-            <div className="font-display text-2xl text-muted-foreground">One Wheel to rule them all</div>
+            <div className="font-display text-2xl text-muted-foreground">One Reel to rule them all</div>
           </div>
         )}
 
-        <div className="relative w-[min(90vw,520px)] aspect-square">
-          {/* Pointer */}
-          <div className="absolute top-1/2 -right-2 -translate-y-1/2 z-20">
+        <div className="relative w-full max-w-md">
+          {/* Pointers */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 z-20">
             <div
               className="w-0 h-0"
               style={{
-                borderTop: "14px solid transparent",
-                borderBottom: "14px solid transparent",
-                borderRight: "26px solid var(--color-gold)",
+                borderTop: "12px solid transparent",
+                borderBottom: "12px solid transparent",
+                borderLeft: "22px solid var(--color-gold)",
+                filter: "drop-shadow(0 0 10px var(--color-gold))",
+              }}
+            />
+          </div>
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 z-20">
+            <div
+              className="w-0 h-0"
+              style={{
+                borderTop: "12px solid transparent",
+                borderBottom: "12px solid transparent",
+                borderRight: "22px solid var(--color-gold)",
                 filter: "drop-shadow(0 0 10px var(--color-gold))",
               }}
             />
           </div>
 
-          {/* Outer ring */}
-          <div className="absolute inset-0 rounded-full ring-glow" style={{
-            background: "conic-gradient(from 0deg, oklch(0.55 0.22 35), oklch(0.82 0.17 80), oklch(0.55 0.22 35))",
-            padding: "8px",
-          }}>
-            <div className="w-full h-full rounded-full bg-background" />
-          </div>
-
-          {/* Wheel */}
-          <motion.div
-            animate={controls}
-            className="absolute inset-3 rounded-full overflow-hidden"
-            style={{ transformOrigin: "50% 50%" }}
+          {/* Window */}
+          <div
+            className="relative overflow-hidden rounded-2xl ring-glow border border-gold/30 bg-background/80 backdrop-blur-sm"
+            style={{ height: VISIBLE_COUNT * ITEM_HEIGHT }}
           >
-            <svg viewBox="-100 -100 200 200" className="w-full h-full">
-              {wheelChars.map((c, i) => {
-                const startA = (i * slice - 90) * (Math.PI / 180);
-                const endA = ((i + 1) * slice - 90) * (Math.PI / 180);
-                const r = 100;
-                const x1 = Math.cos(startA) * r;
-                const y1 = Math.sin(startA) * r;
-                const x2 = Math.cos(endA) * r;
-                const y2 = Math.sin(endA) * r;
-                const largeArc = slice > 180 ? 1 : 0;
-                const path = `M 0 0 L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
-                const midA = (startA + endA) / 2;
-                const tx = Math.cos(midA) * 62;
-                const ty = Math.sin(midA) * 62;
-                const rot = (i * slice) + slice / 2;
-                const fill = c.faction === "good"
-                  ? (i % 2 ? "oklch(0.32 0.06 220)" : "oklch(0.38 0.08 215)")
-                  : c.faction === "evil"
-                  ? (i % 2 ? "oklch(0.28 0.10 25)" : "oklch(0.33 0.13 28)")
-                  : "oklch(0.32 0.06 130)";
+            {/* Center marker */}
+            <div
+              className="absolute left-0 right-0 z-10 pointer-events-none"
+              style={{ top: CENTER_INDEX * ITEM_HEIGHT, height: ITEM_HEIGHT }}
+            >
+              <div className="absolute inset-0 bg-gold/5" />
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gold/50" />
+              <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gold/50" />
+            </div>
+
+            <motion.div animate={controls} className="absolute left-0 right-0">
+              {displayedReel.map((c, i) => {
+                const isWinner = isResultLocked && i === reel.length - 1;
                 return (
-                  <g key={c.name}>
-                    <path d={path} fill={fill} stroke="oklch(0.82 0.17 80 / 0.4)" strokeWidth="0.4" />
-                    <text
-                      x={tx}
-                      y={ty}
-                      transform={`rotate(${rot} ${tx} ${ty})`}
-                      fontSize="4.2"
-                      fill="oklch(0.95 0.05 80)"
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fontFamily="Cinzel, serif"
-                      fontWeight={600}
-                    >
-                      {c.name.length > 14 ? c.name.slice(0, 12) + "…" : c.name}
-                    </text>
-                  </g>
+                  <div
+                    key={`${c.name}-${i}`}
+                    className="flex items-center justify-center px-10 border-b border-border/30 transition-colors"
+                    style={{
+                      height: ITEM_HEIGHT,
+                      borderLeft: `5px solid ${factionColor(c.faction)}`,
+                    }}
+                  >
+                    <div className="text-center">
+                      <div
+                        className={`font-display leading-tight ${
+                          isWinner ? "text-3xl text-gradient-gold" : "text-2xl text-foreground/90"
+                        }`}
+                      >
+                        {c.name}
+                      </div>
+                      <div
+                        className={`text-xs uppercase tracking-widest ${
+                          isWinner ? "text-gold/80" : "text-muted-foreground"
+                        }`}
+                      >
+                        {factionLabel[c.faction]}
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
-            </svg>
-          </motion.div>
+            </motion.div>
+          </div>
 
-          {/* Center eye */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{
-              background: "radial-gradient(circle, oklch(0.92 0.18 75) 0%, oklch(0.55 0.22 35) 50%, oklch(0.2 0.05 30) 100%)",
-              boxShadow: "0 0 30px oklch(0.78 0.2 50), inset 0 0 20px oklch(0.2 0.05 20)",
-            }}>
-              <div className="w-3 h-12 bg-background rounded-full" />
+          {/* Center eye decoration */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{
+                background:
+                  "radial-gradient(circle, oklch(0.92 0.18 75) 0%, oklch(0.55 0.22 35) 50%, oklch(0.2 0.05 30) 100%)",
+                boxShadow:
+                  "0 0 24px oklch(0.78 0.2 50), inset 0 0 12px oklch(0.2 0.05 20)",
+              }}
+            >
+              <div className="w-1.5 h-6 bg-background rounded-full" />
             </div>
           </div>
         </div>
