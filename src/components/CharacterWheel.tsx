@@ -51,6 +51,7 @@ export function CharacterWheel() {
   const [highlight, setHighlight] = useState<Character | null>(null);
   const [reel, setReel] = useState<Character[]>([]);
   const [winnerIndex, setWinnerIndex] = useState(-1);
+  const [showSummary, setShowSummary] = useState(false);
   const controls = useAnimation();
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
