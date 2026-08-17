@@ -3,7 +3,14 @@ import { motion, useAnimation } from "framer-motion";
 import { characters, factionLabel, type Character } from "@/data/characters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, X, Sparkles, RotateCcw } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Plus, X, Sparkles, RotateCcw, ScrollText } from "lucide-react";
 
 interface Assignment {
   player: string;
@@ -44,6 +51,7 @@ export function CharacterWheel() {
   const [highlight, setHighlight] = useState<Character | null>(null);
   const [reel, setReel] = useState<Character[]>([]);
   const [winnerIndex, setWinnerIndex] = useState(-1);
+  const [showSummary, setShowSummary] = useState(false);
   const controls = useAnimation();
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
@@ -101,6 +109,9 @@ export function CharacterWheel() {
       setCurrentIdx(idx + 1);
       await new Promise((r) => setTimeout(r, 2000));
       await spinOnce(list, idx + 1, nextAcc);
+    } else {
+      await new Promise((r) => setTimeout(r, 1200));
+      setShowSummary(true);
     }
   };
 
@@ -110,6 +121,7 @@ export function CharacterWheel() {
     setCurrentIdx(0);
     setReel([]);
     setWinnerIndex(-1);
+    setShowSummary(false);
     controls.set({ y: 0 });
   };
 
@@ -191,9 +203,17 @@ export function CharacterWheel() {
               Snurra Eye of Sauron
             </Button>
           ) : (
-            <Button onClick={reset} variant="outline" className="border-border/60">
-              <RotateCcw className="h-4 w-4 mr-2" /> Börja om
-            </Button>
+            <>
+              <Button
+                onClick={() => setShowSummary(true)}
+                className="bg-gradient-to-b from-[oklch(0.82_0.17_80)] to-[oklch(0.55_0.18_45)] text-primary-foreground font-display tracking-wider hover:opacity-90 ring-glow"
+              >
+                <ScrollText className="h-4 w-4 mr-2" /> Visa sammanfattning
+              </Button>
+              <Button onClick={reset} variant="outline" className="border-border/60">
+                <RotateCcw className="h-4 w-4 mr-2" /> Börja om
+              </Button>
+            </>
           )}
         </div>
 
@@ -342,6 +362,63 @@ export function CharacterWheel() {
           </motion.div>
         </div>
       </div>
+
+      {/* Summary modal */}
+      <Dialog open={showSummary} onOpenChange={setShowSummary}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto bg-background/95 border-gold/30">
+          <DialogHeader>
+            <DialogTitle className="text-3xl text-gradient-gold text-center font-display">
+              Tilldelade karaktärer
+            </DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground">
+              Här är alla spelare och deras unika regler/förmågor.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 pt-4">
+            {assignments.map((a, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
+                className="p-5 rounded-xl bg-card/70 border border-border/60 flex flex-col"
+                style={{ borderTop: `4px solid ${factionColor(a.character.faction)}` }}
+              >
+                <div className="mb-3">
+                  <div className="font-display text-2xl text-gradient-gold">{a.character.name}</div>
+                  <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                    {factionLabel[a.character.faction]}
+                  </div>
+                </div>
+                <div className="mb-4 pb-3 border-b border-border/40">
+                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Spelare</div>
+                  <div className="font-display text-xl">{a.player}</div>
+                </div>
+                <div className="space-y-2 flex-1">
+                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
+                  <ul className="space-y-1.5 text-sm text-foreground/90 list-disc list-outside pl-4">
+                    {a.character.rules.map((r, idx) => (
+                      <li key={idx}>{r}</li>
+                    ))}
+                  </ul>
+                </div>
+                {a.character.quote && (
+                  <div className="mt-4 pt-3 border-t border-border/40 italic text-sm text-accent">
+                    "{a.character.quote}"
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="pt-2 flex justify-center">
+            <Button onClick={() => setShowSummary(false)} variant="outline" className="border-border/60">
+              Stäng
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
