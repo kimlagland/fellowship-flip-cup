@@ -292,7 +292,7 @@ export function CharacterWheel() {
 
             <motion.div animate={controls} className="absolute left-0 right-0">
               {displayedReel.map((c, i) => {
-                const isWinner = isResultLocked && i === reel.length - 1;
+                const isWinner = isResultLocked && i === winnerIndex;
                 return (
                   <div
                     key={`${c.name}-${i}`}
@@ -324,20 +324,22 @@ export function CharacterWheel() {
             </motion.div>
           </div>
 
-          {/* Center eye decoration */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{
-                background:
-                  "radial-gradient(circle, oklch(0.92 0.18 75) 0%, oklch(0.55 0.22 35) 50%, oklch(0.2 0.05 30) 100%)",
-                boxShadow:
-                  "0 0 24px oklch(0.78 0.2 50), inset 0 0 12px oklch(0.2 0.05 20)",
-              }}
-            >
-              <div className="w-1.5 h-6 bg-background rounded-full" />
-            </div>
-          </div>
+        </div>
+
+        {/* Eye of Sauron — placed below the reel so it never covers the names */}
+        <div className="flex justify-center pt-2">
+          <motion.div
+            animate={spinning ? { scale: [1, 1.12, 1] } : { scale: 1 }}
+            transition={spinning ? { duration: 1.6, repeat: Infinity } : { duration: 0.4 }}
+            className="w-12 h-12 rounded-full flex items-center justify-center"
+            style={{
+              background:
+                "radial-gradient(circle, oklch(0.92 0.18 75) 0%, oklch(0.55 0.22 35) 50%, oklch(0.2 0.05 30) 100%)",
+              boxShadow: "0 0 24px oklch(0.78 0.2 50), inset 0 0 12px oklch(0.2 0.05 20)",
+            }}
+          >
+            <div className="w-1.5 h-6 bg-background rounded-full" />
+          </motion.div>
         </div>
       </div>
     </div>
