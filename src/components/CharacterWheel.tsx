@@ -18,14 +18,22 @@ const SPIN_DURATION = 6.5; // seconds
 const factionColor = (f: Character["faction"]) =>
   f === "good" ? "var(--color-good)" : f === "evil" ? "var(--color-evil)" : "var(--color-neutral)";
 
-function generateReel(available: Character[], winner: Character, spinCount = 30): Character[] {
+function generateReel(
+  available: Character[],
+  winner: Character,
+  spinCount = 30,
+  tailCount = 8,
+): { reel: Character[]; winnerIndex: number } {
   const reel: Character[] = [];
   for (let i = 0; i < spinCount; i++) {
-    const randomChar = available[Math.floor(Math.random() * available.length)];
-    reel.push(randomChar);
+    reel.push(available[Math.floor(Math.random() * available.length)]);
   }
+  const winnerIndex = reel.length;
   reel.push(winner);
-  return reel;
+  for (let i = 0; i < tailCount; i++) {
+    reel.push(available[Math.floor(Math.random() * available.length)]);
+  }
+  return { reel, winnerIndex };
 }
 
 export function CharacterWheel() {
