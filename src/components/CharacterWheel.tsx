@@ -109,6 +109,7 @@ export function CharacterWheel() {
     setHighlight(null);
     setCurrentIdx(0);
     setReel([]);
+    setWinnerIndex(-1);
     controls.set({ y: 0 });
   };
 
