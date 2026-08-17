@@ -3,7 +3,14 @@ import { motion, useAnimation } from "framer-motion";
 import { characters, factionLabel, type Character } from "@/data/characters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, X, Sparkles, RotateCcw } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Plus, X, Sparkles, RotateCcw, ScrollText } from "lucide-react";
 
 interface Assignment {
   player: string;
