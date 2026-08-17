@@ -43,14 +43,12 @@ export function CharacterWheel() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [highlight, setHighlight] = useState<Character | null>(null);
   const [reel, setReel] = useState<Character[]>([]);
+  const [winnerIndex, setWinnerIndex] = useState(-1);
   const controls = useAnimation();
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
 
-  const previewChars = useMemo(() => {
-    const shuffled = [...characters].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, VISIBLE_COUNT);
-  }, []);
+  const previewChars = useMemo(() => characters.slice(0, VISIBLE_COUNT), []);
 
   const updatePlayer = (i: number, v: string) => {
     const next = [...players];
@@ -79,14 +77,14 @@ export function CharacterWheel() {
     const available = characters.filter((c) => !used.has(c.name));
     const pick = available[Math.floor(Math.random() * available.length)];
 
-    const reelSequence = generateReel(available, pick);
+    const { reel: reelSequence, winnerIndex: wIdx } = generateReel(available, pick);
     setReel(reelSequence);
+    setWinnerIndex(wIdx);
 
     // Reset reel to the top so the new sequence starts from the beginning.
     controls.set({ y: 0 });
 
-    const finalIndex = reelSequence.length - 1;
-    const finalY = -(finalIndex * ITEM_HEIGHT) + CENTER_INDEX * ITEM_HEIGHT;
+    const finalY = -(wIdx * ITEM_HEIGHT) + CENTER_INDEX * ITEM_HEIGHT;
 
     await controls.start({
       y: finalY,
