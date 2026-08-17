@@ -362,6 +362,63 @@ export function CharacterWheel() {
           </motion.div>
         </div>
       </div>
+
+      {/* Summary modal */}
+      <Dialog open={showSummary} onOpenChange={setShowSummary}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto bg-background/95 border-gold/30">
+          <DialogHeader>
+            <DialogTitle className="text-3xl text-gradient-gold text-center font-display">
+              Tilldelade karaktärer
+            </DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground">
+              Här är alla spelare och deras unika regler/förmågor.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 pt-4">
+            {assignments.map((a, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
+                className="p-5 rounded-xl bg-card/70 border border-border/60 flex flex-col"
+                style={{ borderTop: `4px solid ${factionColor(a.character.faction)}` }}
+              >
+                <div className="mb-3">
+                  <div className="font-display text-2xl text-gradient-gold">{a.character.name}</div>
+                  <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                    {factionLabel[a.character.faction]}
+                  </div>
+                </div>
+                <div className="mb-4 pb-3 border-b border-border/40">
+                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Spelare</div>
+                  <div className="font-display text-xl">{a.player}</div>
+                </div>
+                <div className="space-y-2 flex-1">
+                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
+                  <ul className="space-y-1.5 text-sm text-foreground/90 list-disc list-outside pl-4">
+                    {a.character.rules.map((r, idx) => (
+                      <li key={idx}>{r}</li>
+                    ))}
+                  </ul>
+                </div>
+                {a.character.quote && (
+                  <div className="mt-4 pt-3 border-t border-border/40 italic text-sm text-accent">
+                    "{a.character.quote}"
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="pt-2 flex justify-center">
+            <Button onClick={() => setShowSummary(false)} variant="outline" className="border-border/60">
+              Stäng
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
