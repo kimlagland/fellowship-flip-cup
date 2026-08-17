@@ -18,14 +18,22 @@ const SPIN_DURATION = 6.5; // seconds
 const factionColor = (f: Character["faction"]) =>
   f === "good" ? "var(--color-good)" : f === "evil" ? "var(--color-evil)" : "var(--color-neutral)";
 
-function generateReel(available: Character[], winner: Character, spinCount = 30): Character[] {
+function generateReel(
+  available: Character[],
+  winner: Character,
+  spinCount = 30,
+  tailCount = 8,
+): { reel: Character[]; winnerIndex: number } {
   const reel: Character[] = [];
   for (let i = 0; i < spinCount; i++) {
-    const randomChar = available[Math.floor(Math.random() * available.length)];
-    reel.push(randomChar);
+    reel.push(available[Math.floor(Math.random() * available.length)]);
   }
+  const winnerIndex = reel.length;
   reel.push(winner);
-  return reel;
+  for (let i = 0; i < tailCount; i++) {
+    reel.push(available[Math.floor(Math.random() * available.length)]);
+  }
+  return { reel, winnerIndex };
 }
 
 export function CharacterWheel() {
@@ -35,14 +43,12 @@ export function CharacterWheel() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [highlight, setHighlight] = useState<Character | null>(null);
   const [reel, setReel] = useState<Character[]>([]);
+  const [winnerIndex, setWinnerIndex] = useState(-1);
   const controls = useAnimation();
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
 
-  const previewChars = useMemo(() => {
-    const shuffled = [...characters].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, VISIBLE_COUNT);
-  }, []);
+  const previewChars = useMemo(() => characters.slice(0, VISIBLE_COUNT), []);
 
   const updatePlayer = (i: number, v: string) => {
     const next = [...players];
@@ -71,14 +77,14 @@ export function CharacterWheel() {
     const available = characters.filter((c) => !used.has(c.name));
     const pick = available[Math.floor(Math.random() * available.length)];
 
-    const reelSequence = generateReel(available, pick);
+    const { reel: reelSequence, winnerIndex: wIdx } = generateReel(available, pick);
     setReel(reelSequence);
+    setWinnerIndex(wIdx);
 
     // Reset reel to the top so the new sequence starts from the beginning.
     controls.set({ y: 0 });
 
-    const finalIndex = reelSequence.length - 1;
-    const finalY = -(finalIndex * ITEM_HEIGHT) + CENTER_INDEX * ITEM_HEIGHT;
+    const finalY = -(wIdx * ITEM_HEIGHT) + CENTER_INDEX * ITEM_HEIGHT;
 
     await controls.start({
       y: finalY,
@@ -103,6 +109,7 @@ export function CharacterWheel() {
     setHighlight(null);
     setCurrentIdx(0);
     setReel([]);
+    setWinnerIndex(-1);
     controls.set({ y: 0 });
   };
 
@@ -285,7 +292,7 @@ export function CharacterWheel() {
 
             <motion.div animate={controls} className="absolute left-0 right-0">
               {displayedReel.map((c, i) => {
-                const isWinner = isResultLocked && i === reel.length - 1;
+                const isWinner = isResultLocked && i === winnerIndex;
                 return (
                   <div
                     key={`${c.name}-${i}`}
@@ -317,20 +324,22 @@ export function CharacterWheel() {
             </motion.div>
           </div>
 
-          {/* Center eye decoration */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{
-                background:
-                  "radial-gradient(circle, oklch(0.92 0.18 75) 0%, oklch(0.55 0.22 35) 50%, oklch(0.2 0.05 30) 100%)",
-                boxShadow:
-                  "0 0 24px oklch(0.78 0.2 50), inset 0 0 12px oklch(0.2 0.05 20)",
-              }}
-            >
-              <div className="w-1.5 h-6 bg-background rounded-full" />
-            </div>
-          </div>
+        </div>
+
+        {/* Eye of Sauron — placed below the reel so it never covers the names */}
+        <div className="flex justify-center pt-2">
+          <motion.div
+            animate={spinning ? { scale: [1, 1.12, 1] } : { scale: 1 }}
+            transition={spinning ? { duration: 1.6, repeat: Infinity } : { duration: 0.4 }}
+            className="w-12 h-12 rounded-full flex items-center justify-center"
+            style={{
+              background:
+                "radial-gradient(circle, oklch(0.92 0.18 75) 0%, oklch(0.55 0.22 35) 50%, oklch(0.2 0.05 30) 100%)",
+              boxShadow: "0 0 24px oklch(0.78 0.2 50), inset 0 0 12px oklch(0.2 0.05 20)",
+            }}
+          >
+            <div className="w-1.5 h-6 bg-background rounded-full" />
+          </motion.div>
         </div>
       </div>
     </div>
