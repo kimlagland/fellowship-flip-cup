@@ -203,9 +203,17 @@ export function CharacterWheel() {
               Snurra Eye of Sauron
             </Button>
           ) : (
-            <Button onClick={reset} variant="outline" className="border-border/60">
-              <RotateCcw className="h-4 w-4 mr-2" /> Börja om
-            </Button>
+            <>
+              <Button
+                onClick={() => setShowSummary(true)}
+                className="bg-gradient-to-b from-[oklch(0.82_0.17_80)] to-[oklch(0.55_0.18_45)] text-primary-foreground font-display tracking-wider hover:opacity-90 ring-glow"
+              >
+                <ScrollText className="h-4 w-4 mr-2" /> Visa sammanfattning
+              </Button>
+              <Button onClick={reset} variant="outline" className="border-border/60">
+                <RotateCcw className="h-4 w-4 mr-2" /> Börja om
+              </Button>
+            </>
           )}
         </div>
 
