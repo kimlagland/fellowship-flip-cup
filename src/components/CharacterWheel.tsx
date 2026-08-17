@@ -109,6 +109,9 @@ export function CharacterWheel() {
       setCurrentIdx(idx + 1);
       await new Promise((r) => setTimeout(r, 2000));
       await spinOnce(list, idx + 1, nextAcc);
+    } else {
+      await new Promise((r) => setTimeout(r, 1200));
+      setShowSummary(true);
     }
   };
 
@@ -118,6 +121,7 @@ export function CharacterWheel() {
     setCurrentIdx(0);
     setReel([]);
     setWinnerIndex(-1);
+    setShowSummary(false);
     controls.set({ y: 0 });
   };
 
