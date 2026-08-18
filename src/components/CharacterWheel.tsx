@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, useAnimation } from "framer-motion";
-import { characters, factionLabel, type Character } from "@/data/characters";
+import { characters, factionLabel, findRelations, type Character, type Faction } from "@/data/characters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -126,6 +126,15 @@ export function CharacterWheel() {
   };
 
   const currentPlayer = validPlayers[currentIdx];
+
+  const nameToPlayer = useMemo(
+    () => new Map(assignments.map((a) => [a.character.name, a.player])),
+    [assignments],
+  );
+  const activeRelations = useMemo(
+    () => findRelations(assignments.map((a) => a.character.name)),
+    [assignments],
+  );
 
   const displayedReel = reel.length > 0 ? reel : previewChars;
   const isResultLocked = !spinning && highlight && reel.length > 0;
@@ -375,42 +384,110 @@ export function CharacterWheel() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 pt-4">
-            {assignments.map((a, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                className="p-5 rounded-xl bg-card/70 border border-border/60 flex flex-col"
-                style={{ borderTop: `4px solid ${factionColor(a.character.faction)}` }}
-              >
-                <div className="mb-3">
-                  <div className="font-display text-2xl text-gradient-gold">{a.character.name}</div>
-                  <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                    {factionLabel[a.character.faction]}
+          {activeRelations.length > 0 && (
+            <div className="mt-4 p-4 rounded-xl bg-card/60 border border-gold/25">
+              <div className="font-display text-xl text-gradient-gold mb-3">Allianser &amp; fiendskap</div>
+              <ul className="space-y-2">
+                {activeRelations.map((r, i) => (
+                  <li key={i} className="text-sm">
+                    <span
+                      className="inline-block px-2 py-0.5 mr-2 rounded text-[10px] uppercase tracking-widest align-middle"
+                      style={{
+                        background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
+                        color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
+                      }}
+                    >
+                      {r.kind === "ally" ? "Allierade" : "Fiender"}
+                    </span>
+                    <span className="font-display text-base">
+                      {nameToPlayer.get(r.a) ?? "?"} ({r.a}) &amp; {nameToPlayer.get(r.b) ?? "?"} ({r.b})
+                    </span>
+                    <span className="text-muted-foreground"> — {r.label}: {r.detail}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="space-y-8 pt-4">
+            {(["good", "evil", "neutral"] as Faction[]).map((f) => {
+              const group = assignments.filter((a) => a.character.faction === f);
+              if (group.length === 0) return null;
+              return (
+                <div key={f}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="h-3 w-3 rounded-full" style={{ background: factionColor(f) }} />
+                    <h4 className="font-display text-2xl" style={{ color: factionColor(f) }}>
+                      {factionLabel[f]}
+                    </h4>
+                    <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                      {group.length} spelare
+                    </span>
+                    <div className="flex-1 h-[1px] bg-border/50" />
+                  </div>
+                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    {group.map((a, i) => {
+                      const rels = activeRelations.filter(
+                        (r) => r.a === a.character.name || r.b === a.character.name,
+                      );
+                      return (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.08 }}
+                        className="p-5 rounded-xl bg-card/70 border border-border/60 flex flex-col"
+                        style={{ borderTop: `4px solid ${factionColor(a.character.faction)}` }}
+                      >
+                        <div className="mb-3">
+                          <div className="font-display text-2xl text-gradient-gold">{a.character.name}</div>
+                          <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                            {factionLabel[a.character.faction]}
+                          </div>
+                        </div>
+                        <div className="mb-4 pb-3 border-b border-border/40">
+                          <div className="text-sm text-muted-foreground uppercase tracking-wider">Spelare</div>
+                          <div className="font-display text-xl">{a.player}</div>
+                        </div>
+                        <div className="space-y-2 flex-1">
+                          <div className="text-sm text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
+                          <ul className="space-y-1.5 text-sm text-foreground/90 list-disc list-outside pl-4">
+                            {a.character.rules.map((r, idx) => (
+                              <li key={idx}>{r}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        {rels.length > 0 && (
+                          <div className="mt-4 pt-3 border-t border-border/40 space-y-1.5">
+                            <div className="text-sm text-muted-foreground uppercase tracking-wider">Kopplingar</div>
+                            {rels.map((r, idx) => {
+                              const other = r.a === a.character.name ? r.b : r.a;
+                              return (
+                                <div key={idx} className="text-sm">
+                                  <span style={{ color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)" }}>
+                                    {r.kind === "ally" ? "Allierad" : "Fiende"}
+                                  </span>{" "}
+                                  <span className="font-display">{nameToPlayer.get(other) ?? "?"} ({other})</span>
+                                  <div className="text-muted-foreground text-xs">{r.label} — {r.detail}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {a.character.quote && (
+                          <div className="mt-4 pt-3 border-t border-border/40 italic text-sm text-accent">
+                            "{a.character.quote}"
+                          </div>
+                        )}
+                      </motion.div>
+                      );
+                    })}
                   </div>
                 </div>
-                <div className="mb-4 pb-3 border-b border-border/40">
-                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Spelare</div>
-                  <div className="font-display text-xl">{a.player}</div>
-                </div>
-                <div className="space-y-2 flex-1">
-                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
-                  <ul className="space-y-1.5 text-sm text-foreground/90 list-disc list-outside pl-4">
-                    {a.character.rules.map((r, idx) => (
-                      <li key={idx}>{r}</li>
-                    ))}
-                  </ul>
-                </div>
-                {a.character.quote && (
-                  <div className="mt-4 pt-3 border-t border-border/40 italic text-sm text-accent">
-                    "{a.character.quote}"
-                  </div>
-                )}
-              </motion.div>
-            ))}
+              );
+            })}
           </div>
+
 
           <div className="pt-2 flex justify-center">
             <Button onClick={() => setShowSummary(false)} variant="outline" className="border-border/60">
