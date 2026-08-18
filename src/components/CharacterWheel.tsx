@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { characters, factionLabel, findRelations, type Character, type Faction } from "@/data/characters";
+import type { Relation } from "@/data/characters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,7 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Plus, X, Sparkles, RotateCcw, ScrollText } from "lucide-react";
+import { Plus, X, Sparkles, RotateCcw, ScrollText, ZoomIn } from "lucide-react";
 
 interface Assignment {
   player: string;
