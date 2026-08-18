@@ -127,6 +127,15 @@ export function CharacterWheel() {
 
   const currentPlayer = validPlayers[currentIdx];
 
+  const nameToPlayer = useMemo(
+    () => new Map(assignments.map((a) => [a.character.name, a.player])),
+    [assignments],
+  );
+  const activeRelations = useMemo(
+    () => findRelations(assignments.map((a) => a.character.name)),
+    [assignments],
+  );
+
   const displayedReel = reel.length > 0 ? reel : previewChars;
   const isResultLocked = !spinning && highlight && reel.length > 0;
 
