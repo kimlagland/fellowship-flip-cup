@@ -134,3 +134,76 @@ export const factionLabel: Record<Faction, string> = {
   evil: "De Onda",
   neutral: "Neutrala",
 };
+
+export type RelationKind = "ally" | "rival";
+
+export interface Relation {
+  a: string;
+  b: string;
+  kind: RelationKind;
+  label: string;
+  detail: string;
+}
+
+export const relations: Relation[] = [
+  {
+    a: "Legolas", b: "Gimli", kind: "ally",
+    label: "Vänskapspakt",
+    detail: "Om den ene sätter Barad'dur behöver den andre inte delta.",
+  },
+  {
+    a: "Frodo Baggins", b: "Sam", kind: "ally",
+    label: "Trogna följeslagare",
+    detail: "Sam är alltid med i duell tillsammans med Frodo, står bredvid honom och slipper Barad'dur om Frodo sätter den.",
+  },
+  {
+    a: "Frodo Baggins", b: "Gollum / Sméagol", kind: "rival",
+    label: "Ringens börda",
+    detail: "Gollum måste alltid stå bredvid Frodo.",
+  },
+  {
+    a: "Sam", b: "Gollum / Sméagol", kind: "rival",
+    label: "Misstro",
+    detail: "Sam kan inte använda Sméagol.",
+  },
+  {
+    a: "Gandalf", b: "Balrog", kind: "rival",
+    label: "Dödsfiender",
+    detail: "Balrog måste alltid gå efter Gandalf. Vinner Balrog duellen dör Gandalf direkt.",
+  },
+  {
+    a: "Boromir", b: "Lurtz", kind: "rival",
+    label: "Ödesduell",
+    detail: "Lurtz dödar Boromir direkt.",
+  },
+  {
+    a: "Boromir", b: "Frodo Baggins", kind: "rival",
+    label: "Ringens frestelse",
+    detail: "Mot Frodo måste Boromir använda 1 studs.",
+  },
+  {
+    a: "Frodo Baggins", b: "Sauron", kind: "rival",
+    label: "Ögats blick",
+    detail: "Om Sauron är med måste Frodo kasta med sin icke-dominanta hand. Sätter Frodo bollen i Saurons glas måste alla onda delta i duellen.",
+  },
+  {
+    a: "Sauron", b: "Witch-king of Angmar", kind: "ally",
+    label: "Herre och tjänare",
+    detail: "Sauron kan beordra Witch-king att hjälpa honom i duell — och Witch-king får hjälp av Sauron.",
+  },
+  {
+    a: "Sauron", b: "Gollum / Sméagol", kind: "rival",
+    label: "Förbjudet ord",
+    detail: "Sauron får inte säga \"Sméagol\" mot Gollum.",
+  },
+  {
+    a: "Shelob", b: "Sam", kind: "rival",
+    label: "Spindelns nät",
+    detail: "Sam kan inte bli stunnad av Shelob.",
+  },
+];
+
+export function findRelations(names: string[]): Relation[] {
+  const set = new Set(names);
+  return relations.filter((r) => set.has(r.a) && set.has(r.b));
+}
