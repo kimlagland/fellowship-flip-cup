@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, useAnimation } from "framer-motion";
-import { characters, factionLabel, type Character } from "@/data/characters";
+import { characters, factionLabel, findRelations, type Character, type Faction } from "@/data/characters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
