@@ -53,6 +53,8 @@ export function CharacterWheel() {
   const [reel, setReel] = useState<Character[]>([]);
   const [winnerIndex, setWinnerIndex] = useState(-1);
   const [showSummary, setShowSummary] = useState(false);
+  const [selectedRelation, setSelectedRelation] = useState<Relation | null>(null);
+  const [selectedCharacter, setSelectedCharacter] = useState<Assignment | null>(null);
   const controls = useAnimation();
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
