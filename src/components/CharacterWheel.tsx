@@ -446,7 +446,9 @@ export function CharacterWheel() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.05 }}
-                          className="p-3 rounded-lg bg-card/70 border border-border/60 flex flex-col text-sm"
+                          whileHover={{ scale: 1.03 }}
+                          onClick={() => setSelectedCharacter(a)}
+                          className="p-3 rounded-lg bg-card/70 border border-border/60 flex flex-col text-sm cursor-pointer hover:border-gold/40 hover:bg-card/90 transition-colors"
                           style={{ borderLeft: `3px solid ${factionColor(a.character.faction)}` }}
                         >
                           <div className="mb-1.5">
@@ -473,13 +475,21 @@ export function CharacterWheel() {
                               {rels.map((r, idx) => {
                                 const other = r.a === a.character.name ? r.b : r.a;
                                 return (
-                                  <div key={idx} className="text-xs leading-snug">
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedRelation(r);
+                                    }}
+                                    className="block w-full text-left text-xs leading-snug hover:underline"
+                                  >
                                     <span style={{ color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)" }}>
                                       {r.kind === "ally" ? "Allierad" : "Fiende"}
                                     </span>{" "}
                                     <span className="font-display">{nameToPlayer.get(other) ?? "?"}</span>
                                     <span className="text-muted-foreground"> — {r.label}</span>
-                                  </div>
+                                  </button>
                                 );
                               })}
                             </div>
