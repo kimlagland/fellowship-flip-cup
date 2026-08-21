@@ -53,6 +53,8 @@ export function CharacterWheel() {
   const [reel, setReel] = useState<Character[]>([]);
   const [winnerIndex, setWinnerIndex] = useState(-1);
   const [showSummary, setShowSummary] = useState(false);
+  const [selectedRelation, setSelectedRelation] = useState<Relation | null>(null);
+  const [selectedCharacter, setSelectedCharacter] = useState<Assignment | null>(null);
   const controls = useAnimation();
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
@@ -391,20 +393,26 @@ export function CharacterWheel() {
                 <div className="font-display text-lg text-gradient-gold mb-2">Allianser &amp; fiendskap</div>
                 <ul className="flex flex-wrap gap-2">
                   {activeRelations.map((r, i) => (
-                    <li key={i} className="text-xs bg-background/60 rounded-full px-3 py-1.5 border border-border/40">
-                      <span
-                        className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-[10px] uppercase tracking-wider align-middle"
-                        style={{
-                          background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
-                          color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
-                        }}
+                    <li key={i}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRelation(r)}
+                        className="text-xs bg-background/60 rounded-full px-3 py-1.5 border border-border/40 hover:bg-gold/10 hover:border-gold/40 transition-colors text-left"
                       >
-                        {r.kind === "ally" ? "Allierade" : "Fiender"}
-                      </span>
-                      <span className="font-display text-sm">
-                        {nameToPlayer.get(r.a) ?? "?"} &amp; {nameToPlayer.get(r.b) ?? "?"}
-                      </span>
-                      <span className="text-muted-foreground"> — {r.label}</span>
+                        <span
+                          className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-[10px] uppercase tracking-wider align-middle"
+                          style={{
+                            background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
+                            color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
+                          }}
+                        >
+                          {r.kind === "ally" ? "Allierade" : "Fiender"}
+                        </span>
+                        <span className="font-display text-sm">
+                          {nameToPlayer.get(r.a) ?? "?"} &amp; {nameToPlayer.get(r.b) ?? "?"}
+                        </span>
+                        <span className="text-muted-foreground"> — {r.label}</span>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -438,7 +446,9 @@ export function CharacterWheel() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.05 }}
-                          className="p-3 rounded-lg bg-card/70 border border-border/60 flex flex-col text-sm"
+                          whileHover={{ scale: 1.03 }}
+                          onClick={() => setSelectedCharacter(a)}
+                          className="p-3 rounded-lg bg-card/70 border border-border/60 flex flex-col text-sm cursor-pointer hover:border-gold/40 hover:bg-card/90 transition-colors"
                           style={{ borderLeft: `3px solid ${factionColor(a.character.faction)}` }}
                         >
                           <div className="mb-1.5">
@@ -465,13 +475,21 @@ export function CharacterWheel() {
                               {rels.map((r, idx) => {
                                 const other = r.a === a.character.name ? r.b : r.a;
                                 return (
-                                  <div key={idx} className="text-xs leading-snug">
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedRelation(r);
+                                    }}
+                                    className="block w-full text-left text-xs leading-snug hover:underline"
+                                  >
                                     <span style={{ color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)" }}>
                                       {r.kind === "ally" ? "Allierad" : "Fiende"}
                                     </span>{" "}
                                     <span className="font-display">{nameToPlayer.get(other) ?? "?"}</span>
                                     <span className="text-muted-foreground"> — {r.label}</span>
-                                  </div>
+                                  </button>
                                 );
                               })}
                             </div>
@@ -496,6 +514,125 @@ export function CharacterWheel() {
               Stäng
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Relation detail dialog */}
+      <Dialog open={selectedRelation !== null} onOpenChange={(open) => !open && setSelectedRelation(null)}>
+        <DialogContent className="w-[92vw] max-w-lg bg-background/95 border-gold/30">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-gradient-gold text-center font-display">
+              {selectedRelation?.kind === "ally" ? "Allians" : "Fiendskap"}
+            </DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground text-sm">
+              {selectedRelation && (
+                <>
+                  {nameToPlayer.get(selectedRelation.a) ?? "?"} ({selectedRelation.a}){" "}
+                  {selectedRelation.kind === "ally" ? "&" : "vs"}{" "}
+                  {nameToPlayer.get(selectedRelation.b) ?? "?"} ({selectedRelation.b})
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-2 py-2 text-center">
+            {selectedRelation && (
+              <>
+                <div
+                  className="inline-block px-3 py-1 rounded-full text-xs uppercase tracking-wider mb-4"
+                  style={{
+                    background: selectedRelation.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
+                    color: selectedRelation.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
+                  }}
+                >
+                  {selectedRelation.kind === "ally" ? "Allierade" : "Fiender"}
+                </div>
+                <p className="text-foreground/90 leading-relaxed">{selectedRelation.detail}</p>
+              </>
+            )}
+          </div>
+          <div className="flex justify-center pb-2">
+            <Button onClick={() => setSelectedRelation(null)} variant="outline" className="border-border/60">
+              Stäng
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Character detail dialog */}
+      <Dialog open={selectedCharacter !== null} onOpenChange={(open) => !open && setSelectedCharacter(null)}>
+        <DialogContent className="w-[95vw] max-w-2xl h-[90vh] max-h-[900px] p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
+          {selectedCharacter && (
+            <>
+              <DialogHeader
+                className="shrink-0 px-6 pt-6 pb-4 border-b border-border/40"
+                style={{ borderLeft: `6px solid ${factionColor(selectedCharacter.character.faction)}` }}
+              >
+                <DialogTitle className="text-4xl text-gradient-gold font-display">
+                  {selectedCharacter.character.name}
+                </DialogTitle>
+                <DialogDescription className="text-muted-foreground text-sm">
+                  {factionLabel[selectedCharacter.character.faction]} — spelas av{" "}
+                  <span className="font-display text-foreground">{selectedCharacter.player}</span>
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Regler / förmågor</h4>
+                  <ul className="space-y-3 text-base list-disc list-outside pl-5 leading-relaxed">
+                    {selectedCharacter.character.rules.map((r, idx) => (
+                      <li key={idx} className="text-foreground/90">{r}</li>
+                    ))}
+                  </ul>
+                </div>
+                {selectedCharacter.character.quote && (
+                  <div className="p-4 rounded-lg bg-card/60 border border-border/40 italic text-lg text-accent leading-snug">
+                    "{selectedCharacter.character.quote}"
+                  </div>
+                )}
+                {(() => {
+                  const rels = activeRelations.filter(
+                    (r) => r.a === selectedCharacter.character.name || r.b === selectedCharacter.character.name,
+                  );
+                  if (rels.length === 0) return null;
+                  return (
+                    <div>
+                      <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Kopplingar</h4>
+                      <div className="space-y-2">
+                        {rels.map((r, idx) => {
+                          const other = r.a === selectedCharacter.character.name ? r.b : r.a;
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setSelectedRelation(r)}
+                              className="w-full text-left p-3 rounded-lg bg-card/60 border border-border/40 hover:border-gold/40 hover:bg-card/80 transition-colors"
+                            >
+                              <span
+                                className="inline-block px-2 py-0.5 rounded text-[10px] uppercase tracking-wider mr-2"
+                                style={{
+                                  background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
+                                  color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
+                                }}
+                              >
+                                {r.kind === "ally" ? "Allierad" : "Fiende"}
+                              </span>
+                              <span className="font-display">{nameToPlayer.get(other) ?? "?"}</span>
+                              <span className="text-muted-foreground"> — {r.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+              <div className="shrink-0 px-6 py-3 border-t border-border/40 flex justify-center bg-background/80">
+                <Button onClick={() => setSelectedCharacter(null)} variant="outline" className="border-border/60">
+                  Stäng
+                </Button>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
