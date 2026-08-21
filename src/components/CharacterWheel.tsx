@@ -393,20 +393,26 @@ export function CharacterWheel() {
                 <div className="font-display text-lg text-gradient-gold mb-2">Allianser &amp; fiendskap</div>
                 <ul className="flex flex-wrap gap-2">
                   {activeRelations.map((r, i) => (
-                    <li key={i} className="text-xs bg-background/60 rounded-full px-3 py-1.5 border border-border/40">
-                      <span
-                        className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-[10px] uppercase tracking-wider align-middle"
-                        style={{
-                          background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
-                          color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
-                        }}
+                    <li key={i}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRelation(r)}
+                        className="text-xs bg-background/60 rounded-full px-3 py-1.5 border border-border/40 hover:bg-gold/10 hover:border-gold/40 transition-colors text-left"
                       >
-                        {r.kind === "ally" ? "Allierade" : "Fiender"}
-                      </span>
-                      <span className="font-display text-sm">
-                        {nameToPlayer.get(r.a) ?? "?"} &amp; {nameToPlayer.get(r.b) ?? "?"}
-                      </span>
-                      <span className="text-muted-foreground"> — {r.label}</span>
+                        <span
+                          className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-[10px] uppercase tracking-wider align-middle"
+                          style={{
+                            background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
+                            color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
+                          }}
+                        >
+                          {r.kind === "ally" ? "Allierade" : "Fiender"}
+                        </span>
+                        <span className="font-display text-sm">
+                          {nameToPlayer.get(r.a) ?? "?"} &amp; {nameToPlayer.get(r.b) ?? "?"}
+                        </span>
+                        <span className="text-muted-foreground"> — {r.label}</span>
+                      </button>
                     </li>
                   ))}
                 </ul>
