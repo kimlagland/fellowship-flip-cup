@@ -321,6 +321,69 @@ export function CharacterWheel() {
           )}
         </div>
 
+        {/* Extra tools */}
+        <div className="flex flex-wrap gap-3">
+          <Button
+            variant="outline"
+            onClick={randomizeTeams}
+            disabled={validPlayers.length < 2 || spinning}
+            className="border-border/60"
+          >
+            <Users className="h-4 w-4 mr-2" /> Slumpa lag
+          </Button>
+          <Button
+            variant="outline"
+            onClick={drawFirstPlayer}
+            disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
+            className="border-border/60"
+          >
+            <Dices className="h-4 w-4 mr-2" /> Dra lott: vem börjar
+          </Button>
+          {hasSaved && (
+            <Button
+              variant="ghost"
+              onClick={clearSaved}
+              disabled={spinning}
+              className="text-muted-foreground"
+            >
+              <Trash2 className="h-4 w-4 mr-2" /> Rensa sparat
+            </Button>
+          )}
+        </div>
+
+        {firstPlayer && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-4 rounded-lg bg-card/70 border border-gold/40 text-center ring-glow"
+          >
+            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
+            <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
+          </motion.div>
+        )}
+
+        {teams && (
+          <div className="grid grid-cols-2 gap-3">
+            {(["good", "evil"] as const).map((side) => (
+              <div
+                key={side}
+                className="p-4 rounded-lg bg-card/60 border border-border/60"
+                style={{ borderTop: `3px solid ${factionColor(side)}` }}
+              >
+                <div className="font-display text-lg mb-2" style={{ color: factionColor(side) }}>
+                  {factionLabel[side]}
+                </div>
+                <ul className="space-y-1 text-base">
+                  {teams[side].map((p) => (
+                    <li key={p}>{p}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+
+
         {/* Assignments */}
         {assignments.length > 0 && (
           <div className="pt-4 space-y-3">
