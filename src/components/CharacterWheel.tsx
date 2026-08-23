@@ -552,7 +552,7 @@ export function CharacterWheel() {
                       <button
                         type="button"
                         onClick={() => setSelectedRelation(r)}
-                        className="text-xs bg-background/60 rounded-full px-3 py-1.5 border border-border/40 hover:bg-gold/10 hover:border-gold/40 transition-colors text-left"
+                        className="text-sm bg-background/60 rounded-full px-3 py-1.5 border border-border/40 hover:bg-gold/10 hover:border-gold/40 transition-colors text-left"
                       >
                         <span
                           className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-[10px] uppercase tracking-wider align-middle"
@@ -603,22 +603,22 @@ export function CharacterWheel() {
                           transition={{ delay: i * 0.05 }}
                           whileHover={{ scale: 1.03 }}
                           onClick={() => setSelectedCharacter(a)}
-                          className="p-3 rounded-lg bg-card/70 border border-border/60 flex flex-col text-sm cursor-pointer hover:border-gold/40 hover:bg-card/90 transition-colors"
+                          className="p-4 rounded-lg bg-card/70 border border-border/60 flex flex-col text-base cursor-pointer hover:border-gold/40 hover:bg-card/90 transition-colors"
                           style={{ borderLeft: `3px solid ${factionColor(a.character.faction)}` }}
                         >
                           <div className="mb-1.5">
                             <div className="font-display text-xl text-gradient-gold leading-tight">{a.character.name}</div>
-                            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                            <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
                               {factionLabel[a.character.faction]}
                             </div>
                           </div>
                           <div className="mb-2 pb-2 border-b border-border/40">
-                            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Spelare</div>
+                            <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Spelare</div>
                             <div className="font-display text-base leading-tight">{a.player}</div>
                           </div>
                           <div className="space-y-1 flex-1">
-                            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
-                            <ul className="space-y-0.5 text-xs text-foreground/90 list-disc list-outside pl-3.5 leading-relaxed">
+                            <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
+                            <ul className="space-y-1.5 text-[15px] text-foreground/90 list-disc list-outside pl-4 leading-relaxed">
                               {a.character.rules.map((r, idx) => (
                                 <li key={idx}>{r}</li>
                               ))}
@@ -626,7 +626,7 @@ export function CharacterWheel() {
                           </div>
                           {rels.length > 0 && (
                             <div className="mt-2 pt-2 border-t border-border/40 space-y-1">
-                              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Kopplingar</div>
+                              <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Kopplingar</div>
                               {rels.map((r, idx) => {
                                 const other = r.a === a.character.name ? r.b : r.a;
                                 return (
@@ -637,7 +637,7 @@ export function CharacterWheel() {
                                       e.stopPropagation();
                                       setSelectedRelation(r);
                                     }}
-                                    className="block w-full text-left text-xs leading-snug hover:underline"
+                                    className="block w-full text-left text-sm leading-snug hover:underline"
                                   >
                                     <span style={{ color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)" }}>
                                       {r.kind === "ally" ? "Allierad" : "Fiende"}
@@ -650,7 +650,7 @@ export function CharacterWheel() {
                             </div>
                           )}
                           {a.character.quote && (
-                            <div className="mt-2 pt-2 border-t border-border/40 italic text-xs text-accent leading-snug">
+                            <div className="mt-2 pt-2 border-t border-border/40 italic text-[15px] text-accent leading-snug">
                               "{a.character.quote}"
                             </div>
                           )}
