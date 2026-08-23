@@ -45,6 +45,8 @@ function generateReel(
   return { reel, winnerIndex };
 }
 
+const STORAGE_KEY = "baraddur:game";
+
 export function CharacterWheel() {
   const [players, setPlayers] = useState<string[]>([""]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -56,11 +58,97 @@ export function CharacterWheel() {
   const [showSummary, setShowSummary] = useState(false);
   const [selectedRelation, setSelectedRelation] = useState<Relation | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<Assignment | null>(null);
+  const [teams, setTeams] = useState<{ good: string[]; evil: string[] } | null>(null);
+  const [firstPlayer, setFirstPlayer] = useState<string | null>(null);
+  const [hasSaved, setHasSaved] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const controls = useAnimation();
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
 
+  // Load saved game after hydration
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw) as {
+          players?: string[];
+          assignments?: { player: string; character: string }[];
+          teams?: { good: string[]; evil: string[] } | null;
+          firstPlayer?: string | null;
+        };
+        if (data.players?.length) setPlayers(data.players);
+        if (data.assignments?.length) {
+          const restored = data.assignments
+            .map((a) => {
+              const c = characters.find((ch) => ch.name === a.character);
+              return c ? { player: a.player, character: c } : null;
+            })
+            .filter(Boolean) as Assignment[];
+          if (restored.length) {
+            setAssignments(restored);
+            setHighlight(restored[restored.length - 1].character);
+          }
+        }
+        if (data.teams) setTeams(data.teams);
+        if (data.firstPlayer) setFirstPlayer(data.firstPlayer);
+        setHasSaved(true);
+      }
+    } catch {
+      /* ignore */
+    }
+    setLoaded(true);
+  }, []);
+
+  // Persist
+  useEffect(() => {
+    if (!loaded) return;
+    const hasContent = validPlayers.length > 0 || assignments.length > 0;
+    if (!hasContent) {
+      localStorage.removeItem(STORAGE_KEY);
+      setHasSaved(false);
+      return;
+    }
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        players,
+        assignments: assignments.map((a) => ({ player: a.player, character: a.character.name })),
+        teams,
+        firstPlayer,
+      }),
+    );
+    setHasSaved(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [players, assignments, teams, firstPlayer, loaded]);
+
   const previewChars = useMemo(() => characters.slice(0, VISIBLE_COUNT), []);
+
+  const randomizeTeams = () => {
+    const shuffled = [...validPlayers].sort(() => Math.random() - 0.5);
+    const half = Math.ceil(shuffled.length / 2);
+    setTeams({ good: shuffled.slice(0, half), evil: shuffled.slice(half) });
+  };
+
+  const drawFirstPlayer = () => {
+    if (validPlayers.length === 0) return;
+    setFirstPlayer(validPlayers[Math.floor(Math.random() * validPlayers.length)]);
+  };
+
+  const clearSaved = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setHasSaved(false);
+    setPlayers([""]);
+    setAssignments([]);
+    setTeams(null);
+    setFirstPlayer(null);
+    setHighlight(null);
+    setReel([]);
+    setWinnerIndex(-1);
+    setCurrentIdx(0);
+    controls.set({ y: 0 });
+  };
+
 
   const updatePlayer = (i: number, v: string) => {
     const next = [...players];
