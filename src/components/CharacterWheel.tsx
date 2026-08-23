@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { characters, factionLabel, findRelations, type Character, type Faction } from "@/data/characters";
 import type { Relation } from "@/data/characters";
@@ -11,7 +11,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Plus, X, Sparkles, RotateCcw, ScrollText, ZoomIn } from "lucide-react";
+import { Plus, X, Sparkles, RotateCcw, ScrollText, Users, Dices, Trash2 } from "lucide-react";
+
 
 interface Assignment {
   player: string;
@@ -44,6 +45,8 @@ function generateReel(
   return { reel, winnerIndex };
 }
 
+const STORAGE_KEY = "baraddur:game";
+
 export function CharacterWheel() {
   const [players, setPlayers] = useState<string[]>([""]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -55,11 +58,97 @@ export function CharacterWheel() {
   const [showSummary, setShowSummary] = useState(false);
   const [selectedRelation, setSelectedRelation] = useState<Relation | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<Assignment | null>(null);
+  const [teams, setTeams] = useState<{ good: string[]; evil: string[] } | null>(null);
+  const [firstPlayer, setFirstPlayer] = useState<string | null>(null);
+  const [hasSaved, setHasSaved] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const controls = useAnimation();
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
 
+  // Load saved game after hydration
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw) as {
+          players?: string[];
+          assignments?: { player: string; character: string }[];
+          teams?: { good: string[]; evil: string[] } | null;
+          firstPlayer?: string | null;
+        };
+        if (data.players?.length) setPlayers(data.players);
+        if (data.assignments?.length) {
+          const restored = data.assignments
+            .map((a) => {
+              const c = characters.find((ch) => ch.name === a.character);
+              return c ? { player: a.player, character: c } : null;
+            })
+            .filter(Boolean) as Assignment[];
+          if (restored.length) {
+            setAssignments(restored);
+            setHighlight(restored[restored.length - 1].character);
+          }
+        }
+        if (data.teams) setTeams(data.teams);
+        if (data.firstPlayer) setFirstPlayer(data.firstPlayer);
+        setHasSaved(true);
+      }
+    } catch {
+      /* ignore */
+    }
+    setLoaded(true);
+  }, []);
+
+  // Persist
+  useEffect(() => {
+    if (!loaded) return;
+    const hasContent = validPlayers.length > 0 || assignments.length > 0;
+    if (!hasContent) {
+      localStorage.removeItem(STORAGE_KEY);
+      setHasSaved(false);
+      return;
+    }
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        players,
+        assignments: assignments.map((a) => ({ player: a.player, character: a.character.name })),
+        teams,
+        firstPlayer,
+      }),
+    );
+    setHasSaved(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [players, assignments, teams, firstPlayer, loaded]);
+
   const previewChars = useMemo(() => characters.slice(0, VISIBLE_COUNT), []);
+
+  const randomizeTeams = () => {
+    const shuffled = [...validPlayers].sort(() => Math.random() - 0.5);
+    const half = Math.ceil(shuffled.length / 2);
+    setTeams({ good: shuffled.slice(0, half), evil: shuffled.slice(half) });
+  };
+
+  const drawFirstPlayer = () => {
+    if (validPlayers.length === 0) return;
+    setFirstPlayer(validPlayers[Math.floor(Math.random() * validPlayers.length)]);
+  };
+
+  const clearSaved = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setHasSaved(false);
+    setPlayers([""]);
+    setAssignments([]);
+    setTeams(null);
+    setFirstPlayer(null);
+    setHighlight(null);
+    setReel([]);
+    setWinnerIndex(-1);
+    setCurrentIdx(0);
+    controls.set({ y: 0 });
+  };
+
 
   const updatePlayer = (i: number, v: string) => {
     const next = [...players];
@@ -125,8 +214,11 @@ export function CharacterWheel() {
     setReel([]);
     setWinnerIndex(-1);
     setShowSummary(false);
+    setTeams(null);
+    setFirstPlayer(null);
     controls.set({ y: 0 });
   };
+
 
   const currentPlayer = validPlayers[currentIdx];
 
@@ -228,6 +320,69 @@ export function CharacterWheel() {
             </>
           )}
         </div>
+
+        {/* Extra tools */}
+        <div className="flex flex-wrap gap-3">
+          <Button
+            variant="outline"
+            onClick={randomizeTeams}
+            disabled={validPlayers.length < 2 || spinning}
+            className="border-border/60"
+          >
+            <Users className="h-4 w-4 mr-2" /> Slumpa lag
+          </Button>
+          <Button
+            variant="outline"
+            onClick={drawFirstPlayer}
+            disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
+            className="border-border/60"
+          >
+            <Dices className="h-4 w-4 mr-2" /> Dra lott: vem börjar
+          </Button>
+          {hasSaved && (
+            <Button
+              variant="ghost"
+              onClick={clearSaved}
+              disabled={spinning}
+              className="text-muted-foreground"
+            >
+              <Trash2 className="h-4 w-4 mr-2" /> Rensa sparat
+            </Button>
+          )}
+        </div>
+
+        {firstPlayer && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-4 rounded-lg bg-card/70 border border-gold/40 text-center ring-glow"
+          >
+            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
+            <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
+          </motion.div>
+        )}
+
+        {teams && (
+          <div className="grid grid-cols-2 gap-3">
+            {(["good", "evil"] as const).map((side) => (
+              <div
+                key={side}
+                className="p-4 rounded-lg bg-card/60 border border-border/60"
+                style={{ borderTop: `3px solid ${factionColor(side)}` }}
+              >
+                <div className="font-display text-lg mb-2" style={{ color: factionColor(side) }}>
+                  {factionLabel[side]}
+                </div>
+                <ul className="space-y-1 text-base">
+                  {teams[side].map((p) => (
+                    <li key={p}>{p}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+
 
         {/* Assignments */}
         {assignments.length > 0 && (
@@ -397,7 +552,7 @@ export function CharacterWheel() {
                       <button
                         type="button"
                         onClick={() => setSelectedRelation(r)}
-                        className="text-xs bg-background/60 rounded-full px-3 py-1.5 border border-border/40 hover:bg-gold/10 hover:border-gold/40 transition-colors text-left"
+                        className="text-sm bg-background/60 rounded-full px-3 py-1.5 border border-border/40 hover:bg-gold/10 hover:border-gold/40 transition-colors text-left"
                       >
                         <span
                           className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-[10px] uppercase tracking-wider align-middle"
@@ -448,22 +603,22 @@ export function CharacterWheel() {
                           transition={{ delay: i * 0.05 }}
                           whileHover={{ scale: 1.03 }}
                           onClick={() => setSelectedCharacter(a)}
-                          className="p-3 rounded-lg bg-card/70 border border-border/60 flex flex-col text-sm cursor-pointer hover:border-gold/40 hover:bg-card/90 transition-colors"
+                          className="p-4 rounded-lg bg-card/70 border border-border/60 flex flex-col text-base cursor-pointer hover:border-gold/40 hover:bg-card/90 transition-colors"
                           style={{ borderLeft: `3px solid ${factionColor(a.character.faction)}` }}
                         >
                           <div className="mb-1.5">
-                            <div className="font-display text-xl text-gradient-gold leading-tight">{a.character.name}</div>
-                            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                            <div className="font-display text-2xl text-gradient-gold leading-tight">{a.character.name}</div>
+                            <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
                               {factionLabel[a.character.faction]}
                             </div>
                           </div>
                           <div className="mb-2 pb-2 border-b border-border/40">
-                            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Spelare</div>
-                            <div className="font-display text-base leading-tight">{a.player}</div>
+                            <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Spelare</div>
+                            <div className="font-display text-lg leading-tight">{a.player}</div>
                           </div>
                           <div className="space-y-1 flex-1">
-                            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
-                            <ul className="space-y-0.5 text-xs text-foreground/90 list-disc list-outside pl-3.5 leading-relaxed">
+                            <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
+                            <ul className="space-y-1.5 text-[15px] text-foreground/90 list-disc list-outside pl-4 leading-relaxed">
                               {a.character.rules.map((r, idx) => (
                                 <li key={idx}>{r}</li>
                               ))}
@@ -471,7 +626,7 @@ export function CharacterWheel() {
                           </div>
                           {rels.length > 0 && (
                             <div className="mt-2 pt-2 border-t border-border/40 space-y-1">
-                              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Kopplingar</div>
+                              <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Kopplingar</div>
                               {rels.map((r, idx) => {
                                 const other = r.a === a.character.name ? r.b : r.a;
                                 return (
@@ -482,7 +637,7 @@ export function CharacterWheel() {
                                       e.stopPropagation();
                                       setSelectedRelation(r);
                                     }}
-                                    className="block w-full text-left text-xs leading-snug hover:underline"
+                                    className="block w-full text-left text-sm leading-snug hover:underline"
                                   >
                                     <span style={{ color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)" }}>
                                       {r.kind === "ally" ? "Allierad" : "Fiende"}
@@ -495,7 +650,7 @@ export function CharacterWheel() {
                             </div>
                           )}
                           {a.character.quote && (
-                            <div className="mt-2 pt-2 border-t border-border/40 italic text-xs text-accent leading-snug">
+                            <div className="mt-2 pt-2 border-t border-border/40 italic text-[15px] text-accent leading-snug">
                               "{a.character.quote}"
                             </div>
                           )}
