@@ -214,8 +214,11 @@ export function CharacterWheel() {
     setReel([]);
     setWinnerIndex(-1);
     setShowSummary(false);
+    setTeams(null);
+    setFirstPlayer(null);
     controls.set({ y: 0 });
   };
+
 
   const currentPlayer = validPlayers[currentIdx];
 
