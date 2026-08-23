@@ -3,6 +3,7 @@ import { CharacterWheel } from "@/components/CharacterWheel";
 import { RuleSection } from "@/components/RuleSection";
 import { characters, factionLabel, type Faction } from "@/data/characters";
 import { motion } from "framer-motion";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -41,6 +42,7 @@ function CharacterCard({ name, faction, rules, quote }: typeof characters[number
 function Index() {
   return (
     <main className="min-h-screen">
+      <ThemeToggle />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
