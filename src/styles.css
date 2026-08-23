@@ -71,13 +71,50 @@
   --ember: oklch(0.58 0.21 35);
 }
 
+:root {
+  --glow-top: oklch(0.22 0.05 40);
+  --glow-bottom: oklch(0.18 0.06 25);
+}
+
+.light {
+  --background: oklch(0.97 0.015 85);
+  --foreground: oklch(0.24 0.03 50);
+  --card: oklch(0.99 0.01 85);
+  --card-foreground: oklch(0.24 0.03 50);
+  --popover: oklch(0.99 0.01 85);
+  --popover-foreground: oklch(0.24 0.03 50);
+  --primary: oklch(0.55 0.16 60);
+  --primary-foreground: oklch(0.99 0.01 85);
+  --secondary: oklch(0.92 0.03 80);
+  --secondary-foreground: oklch(0.28 0.04 50);
+  --muted: oklch(0.93 0.02 80);
+  --muted-foreground: oklch(0.45 0.04 60);
+  --accent: oklch(0.5 0.18 35);
+  --accent-foreground: oklch(0.99 0.01 85);
+  --border: oklch(0.85 0.03 70);
+  --input: oklch(0.93 0.02 75);
+  --ring: oklch(0.55 0.16 60);
+  --good: oklch(0.48 0.13 220);
+  --evil: oklch(0.48 0.2 25);
+  --neutral: oklch(0.48 0.09 140);
+  --gold: oklch(0.6 0.15 70);
+  --ember: oklch(0.5 0.19 35);
+  --glow-top: oklch(0.95 0.04 80);
+  --glow-bottom: oklch(0.93 0.04 40);
+}
+
+.light .text-gradient-gold {
+  background: linear-gradient(180deg, oklch(0.55 0.16 70), oklch(0.42 0.16 45));
+}
+
 @layer base {
   * { border-color: var(--color-border); }
   body {
     background:
-      radial-gradient(ellipse at top, oklch(0.22 0.05 40) 0%, transparent 60%),
-      radial-gradient(ellipse at bottom, oklch(0.18 0.06 25) 0%, transparent 60%),
+      radial-gradient(ellipse at top, var(--glow-top) 0%, transparent 60%),
+      radial-gradient(ellipse at bottom, var(--glow-bottom) 0%, transparent 60%),
       var(--color-background);
+
     background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-body);
