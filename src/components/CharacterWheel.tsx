@@ -607,14 +607,14 @@ export function CharacterWheel() {
                           style={{ borderLeft: `3px solid ${factionColor(a.character.faction)}` }}
                         >
                           <div className="mb-1.5">
-                            <div className="font-display text-xl text-gradient-gold leading-tight">{a.character.name}</div>
+                            <div className="font-display text-2xl text-gradient-gold leading-tight">{a.character.name}</div>
                             <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
                               {factionLabel[a.character.faction]}
                             </div>
                           </div>
                           <div className="mb-2 pb-2 border-b border-border/40">
                             <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Spelare</div>
-                            <div className="font-display text-base leading-tight">{a.player}</div>
+                            <div className="font-display text-lg leading-tight">{a.player}</div>
                           </div>
                           <div className="space-y-1 flex-1">
                             <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
