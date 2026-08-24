@@ -664,10 +664,30 @@ export function CharacterWheel() {
             </div>
           </div>
 
-          <div className="shrink-0 px-6 py-3 border-t border-border/40 flex justify-center bg-background/80">
-            <Button onClick={() => setShowSummary(false)} variant="outline" className="border-border/60">
-              Stäng
-            </Button>
+          <div className="shrink-0 px-6 py-3 border-t border-border/40 flex flex-col items-center gap-3 bg-background/80">
+            {firstPlayer && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="px-5 py-2 rounded-lg bg-card/70 border border-gold/40 text-center ring-glow"
+              >
+                <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
+                <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
+              </motion.div>
+            )}
+            <div className="flex justify-center gap-3">
+              <Button
+                variant="outline"
+                onClick={drawFirstPlayer}
+                disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
+                className="border-border/60"
+              >
+                <Dices className="h-4 w-4 mr-2" /> Dra lott: vem börjar
+              </Button>
+              <Button onClick={() => setShowSummary(false)} variant="outline" className="border-border/60">
+                Stäng
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
