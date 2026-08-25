@@ -112,6 +112,14 @@
 
 @layer base {
   * { border-color: var(--color-border); }
+  /* Fluid root size: phone -> desktop. Everything in rem scales with it. */
+  html {
+    font-size: clamp(15px, 0.55vw + 12.5px, 20px);
+  }
+  /* TV / presentation mode: one big step up for viewing from a distance. */
+  html.tv {
+    font-size: clamp(22px, 1.1vw + 12px, 30px);
+  }
   body {
     background:
       radial-gradient(ellipse at top, var(--glow-top) 0%, transparent 60%),
@@ -124,7 +132,14 @@
     font-size: 1.05rem;
   }
   h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: 0.02em; }
+  p, li { max-width: 78ch; }
 }
+
+/* Soften the huge background glow on very large screens */
+@media (min-width: 1600px) {
+  body { background-attachment: scroll; }
+}
+
 
 .text-gradient-gold {
   background: linear-gradient(180deg, oklch(0.92 0.15 88), oklch(0.65 0.18 55));
