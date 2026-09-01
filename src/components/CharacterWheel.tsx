@@ -380,7 +380,7 @@ export function CharacterWheel() {
             animate={{ opacity: 1, scale: 1 }}
             className="p-4 rounded-lg bg-card/70 border border-gold/40 text-center ring-glow"
           >
-            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
+            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
             <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
           </motion.div>
         )}
@@ -421,7 +421,7 @@ export function CharacterWheel() {
               >
                 <div>
                   <div className="font-display text-lg">{a.player}</div>
-                  <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                  <div className="text-sm uppercase tracking-widest text-muted-foreground">
                     {factionLabel[a.character.faction]}
                   </div>
                 </div>
@@ -438,7 +438,7 @@ export function CharacterWheel() {
       <div className="flex flex-col items-center gap-6">
         {currentPlayer && spinning && (
           <div className="text-center">
-            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Snurrar för</div>
+            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Snurrar för</div>
             <div className="font-display text-3xl text-gradient-gold">{currentPlayer}</div>
           </div>
         )}
@@ -448,7 +448,7 @@ export function CharacterWheel() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
               {assignments[assignments.length - 1]?.player} fick
             </div>
             <div className="font-display text-3xl text-gradient-gold">{highlight.name}</div>
@@ -521,7 +521,7 @@ export function CharacterWheel() {
                         {c.name}
                       </div>
                       <div
-                        className={`text-xs uppercase tracking-widest ${
+                        className={`text-sm uppercase tracking-widest ${
                           isWinner ? "text-gold/80" : "text-muted-foreground"
                         }`}
                       >
@@ -578,7 +578,7 @@ export function CharacterWheel() {
                         className="text-sm bg-background/60 rounded-full px-3 py-1.5 border border-border/40 hover:bg-gold/10 hover:border-gold/40 transition-colors text-left"
                       >
                         <span
-                          className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-[10px] uppercase tracking-wider align-middle"
+                          className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-sm uppercase tracking-wider align-middle"
                           style={{
                             background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
                             color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
@@ -608,7 +608,7 @@ export function CharacterWheel() {
                       <h4 className="font-display text-xl shrink-0" style={{ color: factionColor(f) }}>
                         {factionLabel[f]}
                       </h4>
-                      <span className="text-[11px] uppercase tracking-widest text-muted-foreground shrink-0">
+                      <span className="text-sm uppercase tracking-widest text-muted-foreground shrink-0">
                         {group.length} spelare
                       </span>
                       <div className="flex-1 h-[1px] bg-border/50 min-w-0" />
@@ -631,17 +631,17 @@ export function CharacterWheel() {
                         >
                           <div className="mb-1.5">
                             <div className="font-display text-2xl text-gradient-gold leading-tight">{a.character.name}</div>
-                            <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                            <div className="text-sm uppercase tracking-widest text-muted-foreground">
                               {factionLabel[a.character.faction]}
                             </div>
                           </div>
                           <div className="mb-2 pb-2 border-b border-border/40">
-                            <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Spelare</div>
+                            <div className="text-sm text-muted-foreground uppercase tracking-wider">Spelare</div>
                             <div className="font-display text-lg leading-tight">{a.player}</div>
                           </div>
                           <div className="space-y-1 flex-1">
-                            <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
-                            <ul className="space-y-1.5 text-[15px] text-foreground/90 list-disc list-outside pl-4 leading-relaxed">
+                            <div className="text-sm text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
+                            <ul className="space-y-1.5 text-base text-foreground/90 list-disc list-outside pl-4 leading-relaxed">
                               {a.character.rules.map((r, idx) => (
                                 <li key={idx}>{r}</li>
                               ))}
@@ -649,7 +649,7 @@ export function CharacterWheel() {
                           </div>
                           {rels.length > 0 && (
                             <div className="mt-2 pt-2 border-t border-border/40 space-y-1">
-                              <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Kopplingar</div>
+                              <div className="text-sm text-muted-foreground uppercase tracking-wider">Kopplingar</div>
                               {rels.map((r, idx) => {
                                 const other = r.a === a.character.name ? r.b : r.a;
                                 return (
@@ -673,7 +673,7 @@ export function CharacterWheel() {
                             </div>
                           )}
                           {a.character.quote && (
-                            <div className="mt-2 pt-2 border-t border-border/40 italic text-[15px] text-accent leading-snug">
+                            <div className="mt-2 pt-2 border-t border-border/40 italic text-base text-accent leading-snug">
                               "{a.character.quote}"
                             </div>
                           )}
@@ -694,7 +694,7 @@ export function CharacterWheel() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="px-5 py-2 rounded-lg bg-card/70 border border-gold/40 text-center ring-glow"
               >
-                <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
+                <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
                 <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
               </motion.div>
             )}
@@ -736,7 +736,7 @@ export function CharacterWheel() {
             {selectedRelation && (
               <>
                 <div
-                  className="inline-block px-3 py-1 rounded-full text-xs uppercase tracking-wider mb-4"
+                  className="inline-block px-3 py-1 rounded-full text-sm uppercase tracking-wider mb-4"
                   style={{
                     background: selectedRelation.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
                     color: selectedRelation.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
@@ -775,7 +775,7 @@ export function CharacterWheel() {
               </DialogHeader>
               <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Regler / förmågor</h4>
+                  <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">Regler / förmågor</h4>
                   <ul className="space-y-3 text-base list-disc list-outside pl-5 leading-relaxed">
                     {selectedCharacter.character.rules.map((r, idx) => (
                       <li key={idx} className="text-foreground/90">{r}</li>
@@ -794,7 +794,7 @@ export function CharacterWheel() {
                   if (rels.length === 0) return null;
                   return (
                     <div>
-                      <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Kopplingar</h4>
+                      <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">Kopplingar</h4>
                       <div className="space-y-2">
                         {rels.map((r, idx) => {
                           const other = r.a === selectedCharacter.character.name ? r.b : r.a;
@@ -806,7 +806,7 @@ export function CharacterWheel() {
                               className="w-full text-left p-3 rounded-lg bg-card/60 border border-border/40 hover:border-gold/40 hover:bg-card/80 transition-colors"
                             >
                               <span
-                                className="inline-block px-2 py-0.5 rounded text-[10px] uppercase tracking-wider mr-2"
+                                className="inline-block px-2 py-0.5 rounded text-sm uppercase tracking-wider mr-2"
                                 style={{
                                   background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
                                   color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",

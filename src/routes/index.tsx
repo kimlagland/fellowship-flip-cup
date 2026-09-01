@@ -27,7 +27,7 @@ function CharacterCard({ name, faction, rules, quote }: typeof characters[number
     >
       <div className="flex items-baseline justify-between mb-3">
         <h3 className="font-display text-xl text-gradient-gold">{name}</h3>
-        <span className="text-[10px] uppercase tracking-widest" style={{ color }}>
+        <span className="text-sm uppercase tracking-widest" style={{ color }}>
           {factionLabel[faction]}
         </span>
       </div>
@@ -55,7 +55,7 @@ function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="text-xs uppercase tracking-[0.5em] text-accent mb-6">Lord of the Beers</div>
+            <div className="text-sm uppercase tracking-[0.5em] text-accent mb-6">Lord of the Beers</div>
             <h1 className="text-6xl md:text-8xl text-gradient-gold leading-none mb-6">
               Barad'dur
             </h1>
@@ -157,7 +157,7 @@ function Index() {
       }}>
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <div className="text-xs uppercase tracking-[0.5em] text-accent mb-4">The Eye is upon you</div>
+            <div className="text-sm uppercase tracking-[0.5em] text-accent mb-4">The Eye is upon you</div>
             <h2 className="text-5xl md:text-6xl text-gradient-gold mb-4">Tilldela karaktärer</h2>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
               Skriv in alla spelare och låt Eye of Sauron avgöra ert öde.
