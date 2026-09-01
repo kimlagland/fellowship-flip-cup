@@ -19,10 +19,31 @@ interface Assignment {
   character: Character;
 }
 
-const ITEM_HEIGHT = 92; // px
+const ITEM_HEIGHT_REM = 4.6; // scales with the fluid/TV root font size
 const VISIBLE_COUNT = 5;
 const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2);
 const SPIN_DURATION = 6.5; // seconds
+
+/** Item height in px, derived from the root font size so it follows TV mode. */
+function useItemHeight() {
+  const [px, setPx] = useState(ITEM_HEIGHT_REM * 16);
+  useEffect(() => {
+    const measure = () => {
+      const root = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      setPx(ITEM_HEIGHT_REM * root);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    const obs = new MutationObserver(measure);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => {
+      window.removeEventListener("resize", measure);
+      obs.disconnect();
+    };
+  }, []);
+  return px;
+}
+
 
 const factionColor = (f: Character["faction"]) =>
   f === "good" ? "var(--color-good)" : f === "evil" ? "var(--color-evil)" : "var(--color-neutral)";
@@ -63,6 +84,8 @@ export function CharacterWheel() {
   const [hasSaved, setHasSaved] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const controls = useAnimation();
+  const itemHeight = useItemHeight();
+
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
 
@@ -184,7 +207,7 @@ export function CharacterWheel() {
     // Reset reel to the top so the new sequence starts from the beginning.
     controls.set({ y: 0 });
 
-    const finalY = -(wIdx * ITEM_HEIGHT) + CENTER_INDEX * ITEM_HEIGHT;
+    const finalY = -(wIdx * itemHeight) + CENTER_INDEX * itemHeight;
 
     await controls.start({
       y: finalY,
@@ -288,7 +311,7 @@ export function CharacterWheel() {
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap">
           <Button
             variant="outline"
             onClick={addPlayer}
@@ -322,7 +345,7 @@ export function CharacterWheel() {
         </div>
 
         {/* Extra tools */}
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap">
           <Button
             variant="outline"
             onClick={randomizeTeams}
@@ -357,7 +380,7 @@ export function CharacterWheel() {
             animate={{ opacity: 1, scale: 1 }}
             className="p-4 rounded-lg bg-card/70 border border-gold/40 text-center ring-glow"
           >
-            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
+            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
             <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
           </motion.div>
         )}
@@ -398,7 +421,7 @@ export function CharacterWheel() {
               >
                 <div>
                   <div className="font-display text-lg">{a.player}</div>
-                  <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                  <div className="text-sm uppercase tracking-widest text-muted-foreground">
                     {factionLabel[a.character.faction]}
                   </div>
                 </div>
@@ -415,7 +438,7 @@ export function CharacterWheel() {
       <div className="flex flex-col items-center gap-6">
         {currentPlayer && spinning && (
           <div className="text-center">
-            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Snurrar för</div>
+            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Snurrar för</div>
             <div className="font-display text-3xl text-gradient-gold">{currentPlayer}</div>
           </div>
         )}
@@ -425,7 +448,7 @@ export function CharacterWheel() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
               {assignments[assignments.length - 1]?.player} fick
             </div>
             <div className="font-display text-3xl text-gradient-gold">{highlight.name}</div>
@@ -465,12 +488,12 @@ export function CharacterWheel() {
           {/* Window */}
           <div
             className="relative overflow-hidden rounded-2xl ring-glow border border-gold/30 bg-background/80 backdrop-blur-sm"
-            style={{ height: VISIBLE_COUNT * ITEM_HEIGHT }}
+            style={{ height: VISIBLE_COUNT * itemHeight }}
           >
             {/* Center marker */}
             <div
               className="absolute left-0 right-0 z-10 pointer-events-none"
-              style={{ top: CENTER_INDEX * ITEM_HEIGHT, height: ITEM_HEIGHT }}
+              style={{ top: CENTER_INDEX * itemHeight, height: itemHeight }}
             >
               <div className="absolute inset-0 bg-gold/5" />
               <div className="absolute top-0 left-0 right-0 h-[1px] bg-gold/50" />
@@ -485,7 +508,7 @@ export function CharacterWheel() {
                     key={`${c.name}-${i}`}
                     className="flex items-center justify-center px-10 border-b border-border/30 transition-colors"
                     style={{
-                      height: ITEM_HEIGHT,
+                      height: itemHeight,
                       borderLeft: `5px solid ${factionColor(c.faction)}`,
                     }}
                   >
@@ -498,7 +521,7 @@ export function CharacterWheel() {
                         {c.name}
                       </div>
                       <div
-                        className={`text-xs uppercase tracking-widest ${
+                        className={`text-sm uppercase tracking-widest ${
                           isWinner ? "text-gold/80" : "text-muted-foreground"
                         }`}
                       >
@@ -532,7 +555,7 @@ export function CharacterWheel() {
 
       {/* Summary modal */}
       <Dialog open={showSummary} onOpenChange={setShowSummary}>
-        <DialogContent className="w-[95vw] max-w-[1600px] h-[92vh] max-h-[1200px] p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
+        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-[1600px] sm:h-[92vh] sm:max-h-[1200px] sm:rounded-lg p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
           <DialogHeader className="shrink-0 px-6 pt-5 pb-3 border-b border-border/40">
             <DialogTitle className="text-3xl text-gradient-gold text-center font-display">
               Tilldelade karaktärer
@@ -555,7 +578,7 @@ export function CharacterWheel() {
                         className="text-sm bg-background/60 rounded-full px-3 py-1.5 border border-border/40 hover:bg-gold/10 hover:border-gold/40 transition-colors text-left"
                       >
                         <span
-                          className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-[10px] uppercase tracking-wider align-middle"
+                          className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-sm uppercase tracking-wider align-middle"
                           style={{
                             background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
                             color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
@@ -585,12 +608,12 @@ export function CharacterWheel() {
                       <h4 className="font-display text-xl shrink-0" style={{ color: factionColor(f) }}>
                         {factionLabel[f]}
                       </h4>
-                      <span className="text-[11px] uppercase tracking-widest text-muted-foreground shrink-0">
+                      <span className="text-sm uppercase tracking-widest text-muted-foreground shrink-0">
                         {group.length} spelare
                       </span>
                       <div className="flex-1 h-[1px] bg-border/50 min-w-0" />
                     </div>
-                    <div className="grid gap-3 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1">
+                    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                       {group.map((a, i) => {
                         const rels = activeRelations.filter(
                           (r) => r.a === a.character.name || r.b === a.character.name,
@@ -608,17 +631,17 @@ export function CharacterWheel() {
                         >
                           <div className="mb-1.5">
                             <div className="font-display text-2xl text-gradient-gold leading-tight">{a.character.name}</div>
-                            <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                            <div className="text-sm uppercase tracking-widest text-muted-foreground">
                               {factionLabel[a.character.faction]}
                             </div>
                           </div>
                           <div className="mb-2 pb-2 border-b border-border/40">
-                            <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Spelare</div>
+                            <div className="text-sm text-muted-foreground uppercase tracking-wider">Spelare</div>
                             <div className="font-display text-lg leading-tight">{a.player}</div>
                           </div>
                           <div className="space-y-1 flex-1">
-                            <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
-                            <ul className="space-y-1.5 text-[15px] text-foreground/90 list-disc list-outside pl-4 leading-relaxed">
+                            <div className="text-sm text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
+                            <ul className="space-y-1.5 text-base text-foreground/90 list-disc list-outside pl-4 leading-relaxed">
                               {a.character.rules.map((r, idx) => (
                                 <li key={idx}>{r}</li>
                               ))}
@@ -626,7 +649,7 @@ export function CharacterWheel() {
                           </div>
                           {rels.length > 0 && (
                             <div className="mt-2 pt-2 border-t border-border/40 space-y-1">
-                              <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Kopplingar</div>
+                              <div className="text-sm text-muted-foreground uppercase tracking-wider">Kopplingar</div>
                               {rels.map((r, idx) => {
                                 const other = r.a === a.character.name ? r.b : r.a;
                                 return (
@@ -650,7 +673,7 @@ export function CharacterWheel() {
                             </div>
                           )}
                           {a.character.quote && (
-                            <div className="mt-2 pt-2 border-t border-border/40 italic text-[15px] text-accent leading-snug">
+                            <div className="mt-2 pt-2 border-t border-border/40 italic text-base text-accent leading-snug">
                               "{a.character.quote}"
                             </div>
                           )}
@@ -671,7 +694,7 @@ export function CharacterWheel() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="px-5 py-2 rounded-lg bg-card/70 border border-gold/40 text-center ring-glow"
               >
-                <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
+                <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
                 <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
               </motion.div>
             )}
@@ -713,7 +736,7 @@ export function CharacterWheel() {
             {selectedRelation && (
               <>
                 <div
-                  className="inline-block px-3 py-1 rounded-full text-xs uppercase tracking-wider mb-4"
+                  className="inline-block px-3 py-1 rounded-full text-sm uppercase tracking-wider mb-4"
                   style={{
                     background: selectedRelation.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
                     color: selectedRelation.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
@@ -735,7 +758,7 @@ export function CharacterWheel() {
 
       {/* Character detail dialog */}
       <Dialog open={selectedCharacter !== null} onOpenChange={(open) => !open && setSelectedCharacter(null)}>
-        <DialogContent className="w-[95vw] max-w-2xl h-[90vh] max-h-[900px] p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
+        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-2xl sm:h-[90vh] sm:rounded-lg max-h-[900px] p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
           {selectedCharacter && (
             <>
               <DialogHeader
@@ -752,7 +775,7 @@ export function CharacterWheel() {
               </DialogHeader>
               <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Regler / förmågor</h4>
+                  <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">Regler / förmågor</h4>
                   <ul className="space-y-3 text-base list-disc list-outside pl-5 leading-relaxed">
                     {selectedCharacter.character.rules.map((r, idx) => (
                       <li key={idx} className="text-foreground/90">{r}</li>
@@ -771,7 +794,7 @@ export function CharacterWheel() {
                   if (rels.length === 0) return null;
                   return (
                     <div>
-                      <h4 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Kopplingar</h4>
+                      <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">Kopplingar</h4>
                       <div className="space-y-2">
                         {rels.map((r, idx) => {
                           const other = r.a === selectedCharacter.character.name ? r.b : r.a;
@@ -783,7 +806,7 @@ export function CharacterWheel() {
                               className="w-full text-left p-3 rounded-lg bg-card/60 border border-border/40 hover:border-gold/40 hover:bg-card/80 transition-colors"
                             >
                               <span
-                                className="inline-block px-2 py-0.5 rounded text-[10px] uppercase tracking-wider mr-2"
+                                className="inline-block px-2 py-0.5 rounded text-sm uppercase tracking-wider mr-2"
                                 style={{
                                   background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
                                   color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
