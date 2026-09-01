@@ -226,6 +226,8 @@ export function CharacterWheel() {
       await spinOnce(list, idx + 1, nextAcc);
     } else {
       await new Promise((r) => setTimeout(r, 1200));
+      drawFirstPlayer();
+      await new Promise((r) => setTimeout(r, 600));
       setShowSummary(true);
     }
   };
