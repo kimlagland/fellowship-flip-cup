@@ -19,10 +19,31 @@ interface Assignment {
   character: Character;
 }
 
-const ITEM_HEIGHT = 92; // px
+const ITEM_HEIGHT_REM = 4.6; // scales with the fluid/TV root font size
 const VISIBLE_COUNT = 5;
 const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2);
 const SPIN_DURATION = 6.5; // seconds
+
+/** Item height in px, derived from the root font size so it follows TV mode. */
+function useItemHeight() {
+  const [px, setPx] = useState(ITEM_HEIGHT_REM * 16);
+  useEffect(() => {
+    const measure = () => {
+      const root = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      setPx(ITEM_HEIGHT_REM * root);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    const obs = new MutationObserver(measure);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => {
+      window.removeEventListener("resize", measure);
+      obs.disconnect();
+    };
+  }, []);
+  return px;
+}
+
 
 const factionColor = (f: Character["faction"]) =>
   f === "good" ? "var(--color-good)" : f === "evil" ? "var(--color-evil)" : "var(--color-neutral)";
