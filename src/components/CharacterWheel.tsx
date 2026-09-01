@@ -707,7 +707,7 @@ export function CharacterWheel() {
                 disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
                 className="border-border/60"
               >
-                <Dices className="h-4 w-4 mr-2" /> Dra lott: vem börjar
+                <Dices className="h-4 w-4 mr-2" /> Dra om lott
               </Button>
               <Button onClick={() => setShowSummary(false)} variant="outline" className="border-border/60">
                 Stäng
