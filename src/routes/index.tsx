@@ -4,6 +4,7 @@ import { RuleSection } from "@/components/RuleSection";
 import { characters, factionLabel, type Faction } from "@/data/characters";
 import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { TvToggle } from "@/components/TvToggle";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -43,27 +44,28 @@ function Index() {
   return (
     <main className="min-h-screen">
       <ThemeToggle />
+      <TvToggle />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-30 blur-3xl"
             style={{ background: "radial-gradient(circle, oklch(0.7 0.25 45), transparent 70%)" }} />
         </div>
-        <div className="relative max-w-5xl mx-auto px-6 pt-24 pb-16 text-center">
+        <div className="relative max-w-5xl 2xl:max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-16 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
             <div className="text-sm uppercase tracking-[0.5em] text-accent mb-6">Lord of the Beers</div>
-            <h1 className="text-6xl md:text-8xl text-gradient-gold leading-none mb-6">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl break-words text-gradient-gold leading-none mb-6">
               Barad'dur
             </h1>
-            <p className="text-xl md:text-2xl text-foreground/80 max-w-2xl mx-auto italic" style={{ fontFamily: "var(--font-body)" }}>
+            <p className="text-lg sm:text-xl md:text-2xl text-foreground/80 max-w-2xl mx-auto italic" style={{ fontFamily: "var(--font-body)" }}>
               "One game to rule them all" — Ett dricksspel inspirerat av Sagan om Ringen,
               beer pong och flip the cup.
             </p>
-            <div className="mt-12 flex flex-wrap justify-center gap-4">
+            <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 sm:gap-4">
               <a href="#wheel" className="px-8 py-3 rounded-md font-display tracking-widest text-sm bg-gradient-to-b from-[oklch(0.82_0.17_80)] to-[oklch(0.55_0.18_45)] text-primary-foreground ring-glow hover:opacity-90 transition-opacity">
                 Tilldela karaktärer
               </a>
@@ -76,7 +78,7 @@ function Index() {
       </section>
 
       {/* Rules */}
-      <div id="rules" className="max-w-5xl mx-auto px-6 py-20 space-y-24">
+      <div id="rules" className="max-w-5xl 2xl:max-w-6xl mx-auto px-4 sm:px-6 py-20 space-y-24">
         <RuleSection eyebrow="Kapitel I" title="Grundregler">
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 rounded-lg bg-card/50 border border-border/50">
@@ -155,10 +157,10 @@ function Index() {
       <section id="wheel" className="relative py-24 border-y border-border/40" style={{
         background: "linear-gradient(180deg, transparent, oklch(0.12 0.04 30 / 0.6), transparent)",
       }}>
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-6xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
             <div className="text-sm uppercase tracking-[0.5em] text-accent mb-4">The Eye is upon you</div>
-            <h2 className="text-5xl md:text-6xl text-gradient-gold mb-4">Tilldela karaktärer</h2>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl text-gradient-gold mb-4">Tilldela karaktärer</h2>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
               Skriv in alla spelare och låt Eye of Sauron avgöra ert öde.
             </p>
@@ -168,7 +170,7 @@ function Index() {
       </section>
 
       {/* Characters */}
-      <div className="max-w-6xl mx-auto px-6 py-24 space-y-20">
+      <div className="max-w-6xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 py-24 space-y-20">
         {factionGroups.map((f) => {
           const list = characters.filter((c) => c.faction === f);
           const color = f === "good" ? "var(--color-good)" : f === "evil" ? "var(--color-evil)" : "var(--color-neutral)";
