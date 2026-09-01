@@ -84,6 +84,8 @@ export function CharacterWheel() {
   const [hasSaved, setHasSaved] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const controls = useAnimation();
+  const itemHeight = useItemHeight();
+
 
   const validPlayers = players.map((p) => p.trim()).filter(Boolean);
 
