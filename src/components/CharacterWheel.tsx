@@ -311,7 +311,7 @@ export function CharacterWheel() {
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap">
           <Button
             variant="outline"
             onClick={addPlayer}
@@ -345,7 +345,7 @@ export function CharacterWheel() {
         </div>
 
         {/* Extra tools */}
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap">
           <Button
             variant="outline"
             onClick={randomizeTeams}
@@ -555,7 +555,7 @@ export function CharacterWheel() {
 
       {/* Summary modal */}
       <Dialog open={showSummary} onOpenChange={setShowSummary}>
-        <DialogContent className="w-[95vw] max-w-[1600px] h-[92vh] max-h-[1200px] p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
+        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-[1600px] sm:h-[92vh] sm:max-h-[1200px] sm:rounded-lg p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
           <DialogHeader className="shrink-0 px-6 pt-5 pb-3 border-b border-border/40">
             <DialogTitle className="text-3xl text-gradient-gold text-center font-display">
               Tilldelade karaktärer
@@ -613,7 +613,7 @@ export function CharacterWheel() {
                       </span>
                       <div className="flex-1 h-[1px] bg-border/50 min-w-0" />
                     </div>
-                    <div className="grid gap-3 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1">
+                    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                       {group.map((a, i) => {
                         const rels = activeRelations.filter(
                           (r) => r.a === a.character.name || r.b === a.character.name,
@@ -758,7 +758,7 @@ export function CharacterWheel() {
 
       {/* Character detail dialog */}
       <Dialog open={selectedCharacter !== null} onOpenChange={(open) => !open && setSelectedCharacter(null)}>
-        <DialogContent className="w-[95vw] max-w-2xl h-[90vh] max-h-[900px] p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
+        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-2xl sm:h-[90vh] sm:rounded-lg max-h-[900px] p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
           {selectedCharacter && (
             <>
               <DialogHeader
