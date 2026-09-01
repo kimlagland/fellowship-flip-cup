@@ -205,7 +205,7 @@ export function CharacterWheel() {
     // Reset reel to the top so the new sequence starts from the beginning.
     controls.set({ y: 0 });
 
-    const finalY = -(wIdx * ITEM_HEIGHT) + CENTER_INDEX * ITEM_HEIGHT;
+    const finalY = -(wIdx * itemHeight) + CENTER_INDEX * itemHeight;
 
     await controls.start({
       y: finalY,
@@ -486,12 +486,12 @@ export function CharacterWheel() {
           {/* Window */}
           <div
             className="relative overflow-hidden rounded-2xl ring-glow border border-gold/30 bg-background/80 backdrop-blur-sm"
-            style={{ height: VISIBLE_COUNT * ITEM_HEIGHT }}
+            style={{ height: VISIBLE_COUNT * itemHeight }}
           >
             {/* Center marker */}
             <div
               className="absolute left-0 right-0 z-10 pointer-events-none"
-              style={{ top: CENTER_INDEX * ITEM_HEIGHT, height: ITEM_HEIGHT }}
+              style={{ top: CENTER_INDEX * itemHeight, height: itemHeight }}
             >
               <div className="absolute inset-0 bg-gold/5" />
               <div className="absolute top-0 left-0 right-0 h-[1px] bg-gold/50" />
@@ -506,7 +506,7 @@ export function CharacterWheel() {
                     key={`${c.name}-${i}`}
                     className="flex items-center justify-center px-10 border-b border-border/30 transition-colors"
                     style={{
-                      height: ITEM_HEIGHT,
+                      height: itemHeight,
                       borderLeft: `5px solid ${factionColor(c.faction)}`,
                     }}
                   >
