@@ -226,6 +226,8 @@ export function CharacterWheel() {
       await spinOnce(list, idx + 1, nextAcc);
     } else {
       await new Promise((r) => setTimeout(r, 1200));
+      drawFirstPlayer();
+      await new Promise((r) => setTimeout(r, 600));
       setShowSummary(true);
     }
   };
@@ -360,7 +362,7 @@ export function CharacterWheel() {
             disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
             className="border-border/60"
           >
-            <Dices className="h-4 w-4 mr-2" /> Dra lott: vem börjar
+            <Dices className="h-4 w-4 mr-2" /> {firstPlayer ? "Dra om lott" : "Dra lott: vem börjar"}
           </Button>
           {hasSaved && (
             <Button
@@ -705,7 +707,7 @@ export function CharacterWheel() {
                 disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
                 className="border-border/60"
               >
-                <Dices className="h-4 w-4 mr-2" /> Dra lott: vem börjar
+                <Dices className="h-4 w-4 mr-2" /> Dra om lott
               </Button>
               <Button onClick={() => setShowSummary(false)} variant="outline" className="border-border/60">
                 Stäng
