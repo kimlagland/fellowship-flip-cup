@@ -1,26 +1,46 @@
-# Uppdateringar: spel & hemsida
+# Omdesign: Barad'dur → "Ember bento grid"
 
-Ett paket med förbättringar som inte kräver backend — allt sparas i localStorage som idag.
+Modern, fräsch redesign av hela sidan enligt vald riktning (Ember bento grid). All spel-logik, alla regler och karaktärsdata behålls exakt som de är — detta är enbart en visuell omgörning.
 
-## 1. Poäng-/livsräknare
-- Ny sektion under snurran: varje spelare får en rad med namn, karaktärsikon/färg och en livsräknare (start 3, +/- knappar, stora tryckytor för mobil).
-- Väljbart startantal liv (3/5/10).
-- Sparas i localStorage tillsammans med resten av spelet.
+## Designval (låsta)
 
-## 2. Elimineringsläge
-- När en spelare når 0 liv markeras den som "fallen": kortet tonas ner, får ett mörkt skimmer och texten "Har fallit i Moria".
-- Eliminerade spelare räknas inte längre i "dra lott om vem som börjar"-funktioner.
-- Möjlighet att återuppliva en spelare (återställ-knapp per rad).
+- **Färger:** Ember & Night — bakgrund `#0b0b0f`, paneler `#17171f`, guld `#f0d78c`, glöd-orange `#e85d3a`
+- **Typsnitt:** Sora (rubriker, uppercase, tight tracking) + Manrope (brödtext)
+- **Layout:** Bento-grid — rundade paneler (rounded-3xl), tunna guldkanter, ember-glöd på interaktiva element
 
-## 3. Ljud & effekter
-- Diskreta ljudeffekter via Web Audio API (inga externa filer): djup dånande ton under snurret, guldaktigt "klirr" när karaktären landar, mörk stämma vid eliminering.
-- På/av-knapp för ljud uppe bland de andra knapparna (standard av, sparas i localStorage).
+## Ändringar
 
-## 4. Utskriftsvänlig regelvy
-- Knapp "Skriv ut regler" som öppnar utskriftsdialogen med en egen @media print-stil: vitt papper, svart text, kompakt typografi, döljer knappar/snurra/dekorationer.
+### 1. Design-tokens — `src/styles.css`
+- Byt ut hela paletten mot Ember & Night (både mörkt och ljust tema, så light mode fortsätter fungera)
+- Byt fonter: Cinzel/Cormorant → Sora/Manrope (laddas via `<link>` i `__root.tsx`)
+- Större rundningsradie (`--radius: 1rem`) för bento-känslan
+- Ny hero-gradient: guld → ember (ersätter nuvarande `text-gradient-gold`)
+- Behåll fluid typography + TV-läget, men justera skalning
+
+### 2. Hero — `src/routes/index.tsx`
+- Centrerad rubrik "BARAD'DUR" i stor Sora med guld-till-ember-gradient
+- Kicker-text med bred letter-spacing, moderna pill-knappar (primär ember-orange med skugga/glöd, sekundär med tunn kant)
+- Ta bort medeltida dekor, behåll subtil radial glöd
+
+### 3. Regler → bento-paneler
+- Varje regelsektion (Grundregler, Studs, Dueller, Barad'dur, Finalen, Hederskodex) blir rundade paneler på `#17171f` med `border-gold/10`
+- Numrerade regelpunkter med ember-orange siffror ("01", "02"…) där det passar
+- Eyebrow-texter moderniseras (liten uppercase, muted)
+
+### 4. Snurran — `src/components/CharacterWheel.tsx`
+- Bara stil, ingen logikförändring: paneler i bento-stil, rundade karaktärsrader, markerad mitt-slot med guldkant + ember-glöd (`shadow` + `ring`)
+- Knappar: primär "Snurra" som ember-pill, övriga som tunna outline-knappar
+- Sammanfattningsdialogen (Dialog) stylas om i samma bento-språk
+
+### 5. Karaktärskort
+- Rundade kort (rounded-2xl), faktionsfärgad indikator som chip/pill (t.ex. "DE GODA" i färgad pill) istället för fri svävande text
+- Hover: lyft + färgad kant, subtil glöd
+
+### 6. Detaljer
+- Uppdatera `RuleSection`, `ThemeToggle`, `TvToggle`, `CastButton` till samma formspråk
+- Footer i samma stil
 
 ## Tekniskt
-- Livsräknare/elimineringsstatus byggs in i CharacterWheel (utökar befintligt sparat state i `baraddur:game`).
-- Ljud genereras med OscillatorNode/GainNode — inga nya beroenden eller mediefiler.
-- Print-stilar läggs i src/styles.css som `@media print`.
-- Verifiering: bygg + snabb Playwright-koll av räknare, eliminering och utskriftsläge.
+- Inga nya dependencies (Sora + Manrope via Google Fonts-länk i `__root.tsx`)
+- Semantiska tokens används överallt — inga hårdkodade färger i komponenter (nya färger läggs till som tokens)
+- Verifiera: `bun run build` + Playwright-screenshots (desktop, mobil, TV-läge, light mode)
