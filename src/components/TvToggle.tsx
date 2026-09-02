@@ -9,6 +9,9 @@ export function TvToggle() {
 
   useEffect(() => {
     if (localStorage.getItem(STORAGE_KEY) === "1") setTv(true);
+    const onExternal = (e: Event) => setTv((e as CustomEvent<boolean>).detail);
+    window.addEventListener("baraddur:tv", onExternal);
+    return () => window.removeEventListener("baraddur:tv", onExternal);
   }, []);
 
   useEffect(() => {
