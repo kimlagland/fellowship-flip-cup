@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Cast } from "lucide-react";
 
 const SDK_URL =
@@ -43,6 +43,7 @@ export function CastButton() {
   const [supported, setSupported] = useState(false);
   const [casting, setCasting] = useState(false);
   const [loading, setLoading] = useState(false);
+  const sessionRef = useRef<CastSession | null>(null);
 
   useEffect(() => {
     // The Cast SDK calls this global callback once loaded
@@ -102,19 +103,25 @@ export function CastButton() {
       (session) => {
         setLoading(false);
         setCasting(true);
+        sessionRef.current = session;
         // Big text suits the TV — enable TV mode while casting
         if (!document.documentElement.classList.contains("tv")) setTvMode(true);
-        void session;
       },
       () => setLoading(false),
     );
   };
 
   const stopCasting = () => {
-    // Stopping via requestSession is not supported; use the session's stop via
-    // the Cast context. Simplest reliable path: ask SDK to end session by
-    // reloading sender state — fall back to page-owned flag only.
-    setCasting(false);
+    sessionRef.current?.stop(
+      () => {
+        sessionRef.current = null;
+        setCasting(false);
+      },
+      () => {
+        sessionRef.current = null;
+        setCasting(false);
+      },
+    );
   };
 
   if (!supported && !casting) return null;
