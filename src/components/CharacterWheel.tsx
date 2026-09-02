@@ -92,6 +92,23 @@ export function CharacterWheel() {
   // Load saved game after hydration
   useEffect(() => {
     try {
+      // If opened via the Cast button, the game state arrives in the URL hash
+      const hash = window.location.hash;
+      let imported = false;
+      if (hash.startsWith("#cast=")) {
+        try {
+          const json = decodeURIComponent(
+            escape(atob(decodeURIComponent(hash.slice(6)))),
+          );
+          localStorage.setItem(STORAGE_KEY, json);
+          localStorage.setItem("baraddur:tv", "1");
+          document.documentElement.classList.add("tv");
+          imported = true;
+        } catch {
+          /* ignore */
+        }
+        window.history.replaceState(null, "", window.location.pathname);
+      }
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const data = JSON.parse(raw) as {
