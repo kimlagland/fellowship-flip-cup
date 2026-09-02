@@ -5,6 +5,7 @@ import { characters, factionLabel, type Faction } from "@/data/characters";
 import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { TvToggle } from "@/components/TvToggle";
+import { CastButton } from "@/components/CastButton";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -45,6 +46,7 @@ function Index() {
     <main className="min-h-screen">
       <ThemeToggle />
       <TvToggle />
+      <CastButton />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
