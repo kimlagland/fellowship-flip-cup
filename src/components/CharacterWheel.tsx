@@ -128,6 +128,7 @@ export function CharacterWheel() {
           if (restored.length) {
             setAssignments(restored);
             setHighlight(restored[restored.length - 1].character);
+            if (imported) setShowSummary(true);
           }
         }
         if (data.teams) setTeams(data.teams);
