@@ -1,8 +1,8 @@
 # Roadmap
 
-- [ ] Omdesign: Ember bento grid (godkänd plan, pågår)
-  - [ ] Design-tokens + fonter (styles.css, __root.tsx)
-  - [ ] Hero + regelsektioner + karaktärskort (index.tsx, RuleSection)
-  - [ ] Snurra + sammanfattningsdialog (CharacterWheel.tsx)
-  - [ ] Toggles/cast-knapp i ny stil
-  - [ ] Verifiera: build + screenshots (desktop/mobil/TV/light)
+- [x] Omdesign: Ember bento grid (godkänd plan, pågår)
+  - [x] Design-tokens + fonter (styles.css, __root.tsx)
+  - [x] Hero + regelsektioner + karaktärskort (index.tsx, RuleSection)
+  - [x] Snurra + sammanfattningsdialog (CharacterWheel.tsx)
+  - [x] Toggles/cast-knapp i ny stil
+  - [x] Verifiera: build + screenshots (desktop/mobil/TV/light)

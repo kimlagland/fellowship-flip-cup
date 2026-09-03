@@ -23,13 +23,13 @@ function CharacterCard({ name, faction, rules, quote }: typeof characters[number
   const color =
     faction === "good" ? "var(--color-good)" : faction === "evil" ? "var(--color-evil)" : "var(--color-neutral)";
   return (
-    <div
-      className="p-6 rounded-lg bg-card/60 backdrop-blur border border-border/50 hover:border-primary/50 transition-colors h-full"
-      style={{ boxShadow: `inset 0 1px 0 0 ${color}30` }}
-    >
-      <div className="flex items-baseline justify-between mb-3">
+    <div className="bento p-6 h-full transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_40px_-20px_var(--ember)]">
+      <div className="flex items-center justify-between gap-3 mb-4">
         <h3 className="font-display text-xl text-gradient-gold">{name}</h3>
-        <span className="text-sm uppercase tracking-widest" style={{ color }}>
+        <span
+          className="shrink-0 rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.15em]"
+          style={{ color, background: `color-mix(in oklab, ${color} 15%, transparent)`, border: `1px solid color-mix(in oklab, ${color} 35%, transparent)` }}
+        >
           {factionLabel[faction]}
         </span>
       </div>
@@ -59,19 +59,19 @@ function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="text-sm uppercase tracking-[0.5em] text-accent mb-6">Lord of the Beers</div>
+            <div className="inline-block outline-pill px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-muted-foreground mb-8">Lord of the Beers</div>
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl break-words text-gradient-gold leading-none mb-6">
               Barad'dur
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-foreground/80 max-w-2xl mx-auto italic" style={{ fontFamily: "var(--font-body)" }}>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto" style={{ fontFamily: "var(--font-body)" }}>
               "One game to rule them all" — Ett dricksspel inspirerat av Sagan om Ringen,
               beer pong och flip the cup.
             </p>
             <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 sm:gap-4">
-              <a href="#wheel" className="px-8 py-3 rounded-md font-display tracking-widest text-sm bg-gradient-to-b from-[oklch(0.82_0.17_80)] to-[oklch(0.55_0.18_45)] text-primary-foreground ring-glow hover:opacity-90 transition-opacity">
+              <a href="#wheel" className="ember-pill px-8 py-3.5 font-display text-sm font-semibold tracking-wide">
                 Tilldela karaktärer
               </a>
-              <a href="#rules" className="px-8 py-3 rounded-md font-display tracking-widest text-sm border border-border hover:border-primary/60 transition-colors">
+              <a href="#rules" className="outline-pill px-8 py-3.5 font-display text-sm font-semibold tracking-wide text-foreground">
                 Läs reglerna
               </a>
             </div>
@@ -80,10 +80,10 @@ function Index() {
       </section>
 
       {/* Rules */}
-      <div id="rules" className="max-w-5xl 2xl:max-w-6xl mx-auto px-4 sm:px-6 py-20 space-y-24">
+      <div id="rules" className="max-w-5xl 2xl:max-w-6xl mx-auto px-4 sm:px-6 py-20 grid gap-6">
         <RuleSection eyebrow="Kapitel I" title="Grundregler">
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="p-6 rounded-lg bg-card/50 border border-border/50">
+            <div className="rounded-2xl p-6 bg-background/40 border border-border/60">
               <h3 className="font-display text-xl mb-3 text-gradient-gold">Setup</h3>
               <ul className="space-y-2 list-disc list-outside pl-5 text-base">
                 <li>Alla spelare har ett eget glas runt bordet.</li>
@@ -92,7 +92,7 @@ function Index() {
                 <li>Barad'dur fylls med ca 2 klunkar valfri dryck.</li>
               </ul>
             </div>
-            <div className="p-6 rounded-lg bg-card/50 border border-border/50">
+            <div className="rounded-2xl p-6 bg-background/40 border border-border/60">
               <h3 className="font-display text-xl mb-3 text-gradient-gold">Spelets gång</h3>
               <ul className="space-y-2 list-disc list-outside pl-5 text-base">
                 <li>På sin tur kastar spelaren en pingisboll mot en annan spelares glas eller Barad'dur.</li>
@@ -127,11 +127,11 @@ function Index() {
         <RuleSection eyebrow="Kapitel III" title="Barad'dur">
           <p>För att få kasta mot tornet i mitten måste spelaren ropa: <span className="text-accent italic">"Barad'dur!"</span></p>
           <div className="grid md:grid-cols-2 gap-6 pt-2">
-            <div className="p-6 rounded-lg bg-card/50 border border-border/50">
+            <div className="rounded-2xl p-6 bg-background/40 border border-border/60">
               <h3 className="font-display text-lg mb-2 text-destructive">Vid miss</h3>
               <p className="text-base">Spelaren dricker upp innehållet i Barad'dur. Tornet fylls sedan på igen.</p>
             </div>
-            <div className="p-6 rounded-lg bg-card/50 border border-border/50" style={{ borderColor: "oklch(0.78 0.15 75 / 0.4)" }}>
+            <div className="rounded-2xl p-6 bg-background/40 border" style={{ borderColor: "color-mix(in oklab, var(--gold) 40%, transparent)" }}>
               <h3 className="font-display text-lg mb-2 text-gradient-gold">Vid träff</h3>
               <p className="text-base">Alla andra spelare deltar i en gemensam duell. Den som satte bollen slipper. Sista att lyckas med Flip the Cup åker ut.</p>
             </div>
@@ -157,11 +157,11 @@ function Index() {
 
       {/* Wheel */}
       <section id="wheel" className="relative py-24 border-y border-border/40" style={{
-        background: "linear-gradient(180deg, transparent, oklch(0.12 0.04 30 / 0.6), transparent)",
+        background: "linear-gradient(180deg, transparent, color-mix(in oklab, var(--ember) 8%, transparent), transparent)",
       }}>
         <div className="max-w-6xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
-            <div className="text-sm uppercase tracking-[0.5em] text-accent mb-4">The Eye is upon you</div>
+            <div className="inline-block outline-pill px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-muted-foreground mb-6">The Eye is upon you</div>
             <h2 className="text-4xl sm:text-5xl md:text-6xl text-gradient-gold mb-4">Tilldela karaktärer</h2>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
               Skriv in alla spelare och låt Eye of Sauron avgöra ert öde.
@@ -180,7 +180,7 @@ function Index() {
             <section key={f}>
               <div className="flex items-center gap-4 mb-8">
                 <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, transparent, ${color}80, transparent)` }} />
-                <h2 className="font-display text-3xl md:text-4xl uppercase tracking-[0.3em]" style={{ color }}>
+                <h2 className="font-display text-2xl md:text-3xl uppercase tracking-[0.25em]" style={{ color }}>
                   {factionLabel[f]}
                 </h2>
                 <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, transparent, ${color}80, transparent)` }} />

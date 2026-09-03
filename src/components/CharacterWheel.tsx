@@ -313,7 +313,7 @@ export function CharacterWheel() {
                   }
                 }}
                 placeholder={`Spelare ${i + 1}`}
-                className="bg-input/60 border-border/60 font-body text-base h-11"
+                className="bg-input/60 border-border/60 rounded-xl font-body text-base h-11"
                 disabled={spinning || assignments.length > 0}
               />
               {players.length > 1 && (
@@ -336,7 +336,7 @@ export function CharacterWheel() {
             variant="outline"
             onClick={addPlayer}
             disabled={spinning || assignments.length > 0}
-            className="border-border/60"
+            className="rounded-full border-gold/25 hover:border-gold/60"
           >
             <Plus className="h-4 w-4 mr-2" /> Lägg till spelare
           </Button>
@@ -344,7 +344,7 @@ export function CharacterWheel() {
             <Button
               onClick={startSpin}
               disabled={validPlayers.length === 0 || spinning}
-              className="bg-gradient-to-b from-[oklch(0.82_0.17_80)] to-[oklch(0.55_0.18_45)] text-primary-foreground font-display tracking-wider hover:opacity-90 ring-glow"
+              className="ember-pill px-6 font-display font-semibold tracking-wide hover:bg-transparent"
             >
               <Sparkles className="h-4 w-4 mr-2" />
               Snurra Eye of Sauron
@@ -353,11 +353,11 @@ export function CharacterWheel() {
             <>
               <Button
                 onClick={() => setShowSummary(true)}
-                className="bg-gradient-to-b from-[oklch(0.82_0.17_80)] to-[oklch(0.55_0.18_45)] text-primary-foreground font-display tracking-wider hover:opacity-90 ring-glow"
+                className="ember-pill px-6 font-display font-semibold tracking-wide hover:bg-transparent"
               >
                 <ScrollText className="h-4 w-4 mr-2" /> Visa sammanfattning
               </Button>
-              <Button onClick={reset} variant="outline" className="border-border/60">
+              <Button onClick={reset} variant="outline" className="rounded-full border-gold/25 hover:border-gold/60">
                 <RotateCcw className="h-4 w-4 mr-2" /> Börja om
               </Button>
             </>
@@ -370,7 +370,7 @@ export function CharacterWheel() {
             variant="outline"
             onClick={randomizeTeams}
             disabled={validPlayers.length < 2 || spinning}
-            className="border-border/60"
+            className="rounded-full border-gold/25 hover:border-gold/60"
           >
             <Users className="h-4 w-4 mr-2" /> Slumpa lag
           </Button>
@@ -378,7 +378,7 @@ export function CharacterWheel() {
             variant="outline"
             onClick={drawFirstPlayer}
             disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
-            className="border-border/60"
+            className="rounded-full border-gold/25 hover:border-gold/60"
           >
             <Dices className="h-4 w-4 mr-2" /> {firstPlayer ? "Dra om lott" : "Dra lott: vem börjar"}
           </Button>
@@ -398,7 +398,7 @@ export function CharacterWheel() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="p-4 rounded-lg bg-card/70 border border-gold/40 text-center ring-glow"
+            className="bento p-4 text-center ring-glow"
           >
             <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
             <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
@@ -410,7 +410,7 @@ export function CharacterWheel() {
             {(["good", "evil"] as const).map((side) => (
               <div
                 key={side}
-                className="p-4 rounded-lg bg-card/60 border border-border/60"
+                className="bento p-4"
                 style={{ borderTop: `3px solid ${factionColor(side)}` }}
               >
                 <div className="font-display text-lg mb-2" style={{ color: factionColor(side) }}>
@@ -436,7 +436,7 @@ export function CharacterWheel() {
                 key={i}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="flex items-center justify-between p-4 rounded-lg bg-card/70 border border-border/60"
+                className="bento flex items-center justify-between p-4"
                 style={{ borderLeft: `4px solid ${factionColor(a.character.faction)}` }}
               >
                 <div>
@@ -507,7 +507,7 @@ export function CharacterWheel() {
 
           {/* Window */}
           <div
-            className="relative overflow-hidden rounded-2xl ring-glow border border-gold/30 bg-background/80 backdrop-blur-sm"
+            className="relative overflow-hidden rounded-3xl ring-glow border border-gold/20 bg-card/70 backdrop-blur-sm"
             style={{ height: VISIBLE_COUNT * itemHeight }}
           >
             {/* Center marker */}
@@ -575,7 +575,7 @@ export function CharacterWheel() {
 
       {/* Summary modal */}
       <Dialog open={showSummary} onOpenChange={setShowSummary}>
-        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-[1600px] sm:h-[92vh] sm:max-h-[1200px] sm:rounded-lg p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
+        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-[1600px] sm:h-[92vh] sm:max-h-[1200px] sm:rounded-3xl p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
           <DialogHeader className="shrink-0 px-6 pt-5 pb-3 border-b border-border/40">
             <DialogTitle className="text-3xl text-gradient-gold text-center font-display">
               Tilldelade karaktärer
@@ -587,7 +587,7 @@ export function CharacterWheel() {
 
           <div className="flex-1 overflow-y-auto px-6 py-4">
             {activeRelations.length > 0 && (
-              <div className="mb-4 p-3 rounded-lg bg-card/60 border border-gold/25">
+              <div className="bento mb-4 p-3">
                 <div className="font-display text-lg text-gradient-gold mb-2">Allianser &amp; fiendskap</div>
                 <ul className="flex flex-wrap gap-2">
                   {activeRelations.map((r, i) => (
@@ -646,7 +646,7 @@ export function CharacterWheel() {
                           transition={{ delay: i * 0.05 }}
                           whileHover={{ scale: 1.03 }}
                           onClick={() => setSelectedCharacter(a)}
-                          className="p-4 rounded-lg bg-card/70 border border-border/60 flex flex-col text-base cursor-pointer hover:border-gold/40 hover:bg-card/90 transition-colors"
+                          className="bento p-4 flex flex-col text-base cursor-pointer hover:border-gold/40 transition-colors"
                           style={{ borderLeft: `3px solid ${factionColor(a.character.faction)}` }}
                         >
                           <div className="mb-1.5">
@@ -712,7 +712,7 @@ export function CharacterWheel() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="px-5 py-2 rounded-lg bg-card/70 border border-gold/40 text-center ring-glow"
+                className="px-5 py-2 rounded-full bg-card/70 border border-gold/40 text-center ring-glow"
               >
                 <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
                 <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
@@ -723,11 +723,11 @@ export function CharacterWheel() {
                 variant="outline"
                 onClick={drawFirstPlayer}
                 disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
-                className="border-border/60"
+                className="rounded-full border-gold/25 hover:border-gold/60"
               >
                 <Dices className="h-4 w-4 mr-2" /> Dra om lott
               </Button>
-              <Button onClick={() => setShowSummary(false)} variant="outline" className="border-border/60">
+              <Button onClick={() => setShowSummary(false)} variant="outline" className="rounded-full border-gold/25 hover:border-gold/60">
                 Stäng
               </Button>
             </div>
@@ -769,7 +769,7 @@ export function CharacterWheel() {
             )}
           </div>
           <div className="flex justify-center pb-2">
-            <Button onClick={() => setSelectedRelation(null)} variant="outline" className="border-border/60">
+            <Button onClick={() => setSelectedRelation(null)} variant="outline" className="rounded-full border-gold/25 hover:border-gold/60">
               Stäng
             </Button>
           </div>
@@ -778,7 +778,7 @@ export function CharacterWheel() {
 
       {/* Character detail dialog */}
       <Dialog open={selectedCharacter !== null} onOpenChange={(open) => !open && setSelectedCharacter(null)}>
-        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-2xl sm:h-[90vh] sm:rounded-lg max-h-[900px] p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
+        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-2xl sm:h-[90vh] sm:rounded-3xl max-h-[900px] p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
           {selectedCharacter && (
             <>
               <DialogHeader
@@ -803,7 +803,7 @@ export function CharacterWheel() {
                   </ul>
                 </div>
                 {selectedCharacter.character.quote && (
-                  <div className="p-4 rounded-lg bg-card/60 border border-border/40 italic text-lg text-accent leading-snug">
+                  <div className="bento p-4 italic text-lg text-accent leading-snug">
                     "{selectedCharacter.character.quote}"
                   </div>
                 )}
@@ -823,7 +823,7 @@ export function CharacterWheel() {
                               key={idx}
                               type="button"
                               onClick={() => setSelectedRelation(r)}
-                              className="w-full text-left p-3 rounded-lg bg-card/60 border border-border/40 hover:border-gold/40 hover:bg-card/80 transition-colors"
+                              className="w-full text-left bento p-3 hover:border-gold/40 transition-colors"
                             >
                               <span
                                 className="inline-block px-2 py-0.5 rounded text-sm uppercase tracking-wider mr-2"
@@ -845,7 +845,7 @@ export function CharacterWheel() {
                 })()}
               </div>
               <div className="shrink-0 px-6 py-3 border-t border-border/40 flex justify-center bg-background/80">
-                <Button onClick={() => setSelectedCharacter(null)} variant="outline" className="border-border/60">
+                <Button onClick={() => setSelectedCharacter(null)} variant="outline" className="rounded-full border-gold/25 hover:border-gold/60">
                   Stäng
                 </Button>
               </div>

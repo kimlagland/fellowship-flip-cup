@@ -10,12 +10,14 @@ export function RuleSection({
   children: ReactNode;
 }) {
   return (
-    <section className="space-y-6">
+    <section className="bento p-6 sm:p-10 space-y-6">
       {eyebrow && (
-        <div className="text-sm uppercase tracking-[0.4em] text-accent">{eyebrow}</div>
+        <div className="text-xs uppercase tracking-[0.35em] text-muted-foreground">{eyebrow}</div>
       )}
-      <h2 className="text-4xl md:text-5xl text-gradient-gold">{title}</h2>
-      <div className="space-y-4 text-foreground/85 leading-relaxed text-lg">{children}</div>
+      <h2 className="text-3xl md:text-4xl text-gradient-gold">{title}</h2>
+      <div className="space-y-4 text-foreground/80 leading-relaxed text-base sm:text-lg">
+        {children}
+      </div>
     </section>
   );
 }
