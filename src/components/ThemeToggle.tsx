@@ -5,6 +5,7 @@ import { Moon, Sun } from "lucide-react";
 const STORAGE_KEY = "baraddur:theme";
 
 export function ThemeToggle() {
+  const { t } = useLanguage();
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {

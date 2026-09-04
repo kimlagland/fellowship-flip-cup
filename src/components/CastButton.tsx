@@ -20,6 +20,7 @@ function encodeState(json: string): string {
 }
 
 export function CastButton() {
+  const { t } = useLanguage();
   const [supported, setSupported] = useState(false);
   const [casting, setCasting] = useState(false);
   const [loading, setLoading] = useState(false);

@@ -5,6 +5,7 @@ import { Maximize, Minimize, Tv } from "lucide-react";
 const STORAGE_KEY = "baraddur:tv";
 
 export function TvToggle() {
+  const { t } = useLanguage();
   const [tv, setTv] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
 
