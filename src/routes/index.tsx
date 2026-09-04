@@ -84,6 +84,22 @@ function Index() {
         </div>
       </section>
 
+      {/* Wheel */}
+      <section id="wheel" className="relative py-24 border-y border-border/40" style={{
+        background: "linear-gradient(180deg, transparent, color-mix(in oklab, var(--ember) 8%, transparent), transparent)",
+      }}>
+        <div className="max-w-6xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <div className="inline-block outline-pill px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-muted-foreground mb-6">{t.wheelEyebrow}</div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl text-gradient-gold mb-4">{t.wheelTitle}</h2>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              {t.wheelSubtitle}
+            </p>
+          </div>
+          <CharacterWheel />
+        </div>
+      </section>
+
       {/* Rules */}
       <div id="rules" className="max-w-5xl 2xl:max-w-6xl mx-auto px-4 sm:px-6 py-20 grid gap-6">
         <RuleSection eyebrow={t.chapter1} title={t.basicRules}>
@@ -151,22 +167,6 @@ function Index() {
           </ul>
         </RuleSection>
       </div>
-
-      {/* Wheel */}
-      <section id="wheel" className="relative py-24 border-y border-border/40" style={{
-        background: "linear-gradient(180deg, transparent, color-mix(in oklab, var(--ember) 8%, transparent), transparent)",
-      }}>
-        <div className="max-w-6xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6">
-          <div className="text-center mb-16">
-            <div className="inline-block outline-pill px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-muted-foreground mb-6">{t.wheelEyebrow}</div>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl text-gradient-gold mb-4">{t.wheelTitle}</h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              {t.wheelSubtitle}
-            </p>
-          </div>
-          <CharacterWheel />
-        </div>
-      </section>
 
       {/* Characters */}
       <div className="max-w-6xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 py-24 space-y-20">
