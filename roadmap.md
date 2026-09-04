@@ -6,3 +6,4 @@
   - [x] Snurra + sammanfattningsdialog (CharacterWheel.tsx)
   - [x] Toggles/cast-knapp i ny stil
   - [x] Verifiera: build + screenshots (desktop/mobil/TV/light)
+- [x] Språkval SV/EN med översättning av hela sajten
