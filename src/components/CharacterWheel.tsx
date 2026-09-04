@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
-import { characters, factionLabel, findRelations, type Character, type Faction } from "@/data/characters";
+import { characters, factionLabels, characterRules, relationLabel, relationDetail, findRelations, type Character, type Faction } from "@/data/characters";
+import { useLanguage } from "@/i18n";
 import type { Relation } from "@/data/characters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,6 +84,7 @@ export function CharacterWheel() {
   const [firstPlayer, setFirstPlayer] = useState<string | null>(null);
   const [hasSaved, setHasSaved] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const { lang, t } = useLanguage();
   const controls = useAnimation();
   const itemHeight = useItemHeight();
 
@@ -282,8 +284,8 @@ export function CharacterWheel() {
       {/* Players panel */}
       <div className="space-y-6">
         <div>
-          <h3 className="text-2xl text-gradient-gold mb-1">Sällskapet</h3>
-          <p className="text-muted-foreground text-sm">Lägg till alla spelare som ska tilldelas en karaktär.</p>
+          <h3 className="text-2xl text-gradient-gold mb-1">{t.fellowship}</h3>
+          <p className="text-muted-foreground text-sm">{t.fellowshipHint}</p>
         </div>
 
         <div className="space-y-3">
@@ -312,7 +314,7 @@ export function CharacterWheel() {
                     focusNext(i + 1);
                   }
                 }}
-                placeholder={`Spelare ${i + 1}`}
+                placeholder={t.playerPlaceholder(i + 1)}
                 className="bg-input/60 border-border/60 rounded-xl font-body text-base h-11"
                 disabled={spinning || assignments.length > 0}
               />
@@ -338,7 +340,7 @@ export function CharacterWheel() {
             disabled={spinning || assignments.length > 0}
             className="rounded-full border-gold/25 hover:border-gold/60"
           >
-            <Plus className="h-4 w-4 mr-2" /> Lägg till spelare
+            <Plus className="h-4 w-4 mr-2" /> {t.addPlayer}
           </Button>
           {assignments.length === 0 ? (
             <Button
@@ -347,7 +349,7 @@ export function CharacterWheel() {
               className="ember-pill px-6 font-display font-semibold tracking-wide hover:bg-transparent"
             >
               <Sparkles className="h-4 w-4 mr-2" />
-              Snurra Eye of Sauron
+              {t.spin}
             </Button>
           ) : (
             <>
@@ -355,10 +357,10 @@ export function CharacterWheel() {
                 onClick={() => setShowSummary(true)}
                 className="ember-pill px-6 font-display font-semibold tracking-wide hover:bg-transparent"
               >
-                <ScrollText className="h-4 w-4 mr-2" /> Visa sammanfattning
+                <ScrollText className="h-4 w-4 mr-2" /> {t.showSummary}
               </Button>
               <Button onClick={reset} variant="outline" className="rounded-full border-gold/25 hover:border-gold/60">
-                <RotateCcw className="h-4 w-4 mr-2" /> Börja om
+                <RotateCcw className="h-4 w-4 mr-2" /> {t.restart}
               </Button>
             </>
           )}
@@ -372,7 +374,7 @@ export function CharacterWheel() {
             disabled={validPlayers.length < 2 || spinning}
             className="rounded-full border-gold/25 hover:border-gold/60"
           >
-            <Users className="h-4 w-4 mr-2" /> Slumpa lag
+            <Users className="h-4 w-4 mr-2" /> {t.randomTeams}
           </Button>
           <Button
             variant="outline"
@@ -380,7 +382,7 @@ export function CharacterWheel() {
             disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
             className="rounded-full border-gold/25 hover:border-gold/60"
           >
-            <Dices className="h-4 w-4 mr-2" /> {firstPlayer ? "Dra om lott" : "Dra lott: vem börjar"}
+            <Dices className="h-4 w-4 mr-2" /> {firstPlayer ? t.redraw : t.drawFirst}
           </Button>
           {hasSaved && (
             <Button
@@ -389,7 +391,7 @@ export function CharacterWheel() {
               disabled={spinning}
               className="text-muted-foreground"
             >
-              <Trash2 className="h-4 w-4 mr-2" /> Rensa sparat
+              <Trash2 className="h-4 w-4 mr-2" /> {t.clearSaved}
             </Button>
           )}
         </div>
@@ -400,7 +402,7 @@ export function CharacterWheel() {
             animate={{ opacity: 1, scale: 1 }}
             className="bento p-4 text-center ring-glow"
           >
-            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
+            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">{t.startsGame}</div>
             <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
           </motion.div>
         )}
@@ -414,7 +416,7 @@ export function CharacterWheel() {
                 style={{ borderTop: `3px solid ${factionColor(side)}` }}
               >
                 <div className="font-display text-lg mb-2" style={{ color: factionColor(side) }}>
-                  {factionLabel[side]}
+                  {factionLabels[lang][side]}
                 </div>
                 <ul className="space-y-1 text-base">
                   {teams[side].map((p) => (
@@ -430,7 +432,7 @@ export function CharacterWheel() {
         {/* Assignments */}
         {assignments.length > 0 && (
           <div className="pt-4 space-y-3">
-            <h4 className="text-xl text-gradient-gold">Tilldelningar</h4>
+            <h4 className="text-xl text-gradient-gold">{t.assignments}</h4>
             {assignments.map((a, i) => (
               <motion.div
                 key={i}
@@ -442,7 +444,7 @@ export function CharacterWheel() {
                 <div>
                   <div className="font-display text-lg">{a.player}</div>
                   <div className="text-sm uppercase tracking-widest text-muted-foreground">
-                    {factionLabel[a.character.faction]}
+                    {factionLabels[lang][a.character.faction]}
                   </div>
                 </div>
                 <div className="text-right">
@@ -458,7 +460,7 @@ export function CharacterWheel() {
       <div className="flex flex-col items-center gap-6">
         {currentPlayer && spinning && (
           <div className="text-center">
-            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Snurrar för</div>
+            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">{t.spinningFor}</div>
             <div className="font-display text-3xl text-gradient-gold">{currentPlayer}</div>
           </div>
         )}
@@ -469,14 +471,14 @@ export function CharacterWheel() {
             className="text-center"
           >
             <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
-              {assignments[assignments.length - 1]?.player} fick
+              {assignments[assignments.length - 1]?.player} {t.got}
             </div>
             <div className="font-display text-3xl text-gradient-gold">{highlight.name}</div>
           </motion.div>
         )}
         {!currentPlayer && !highlight && (
           <div className="text-center">
-            <div className="font-display text-2xl text-muted-foreground">One Reel to rule them all</div>
+            <div className="font-display text-2xl text-muted-foreground">{t.idleReel}</div>
           </div>
         )}
 
@@ -545,7 +547,7 @@ export function CharacterWheel() {
                           isWinner ? "text-gold/80" : "text-muted-foreground"
                         }`}
                       >
-                        {factionLabel[c.faction]}
+                        {factionLabels[lang][c.faction]}
                       </div>
                     </div>
                   </div>
@@ -578,17 +580,17 @@ export function CharacterWheel() {
         <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-[1600px] sm:h-[92vh] sm:max-h-[1200px] sm:rounded-3xl p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
           <DialogHeader className="shrink-0 px-6 pt-5 pb-3 border-b border-border/40">
             <DialogTitle className="text-3xl text-gradient-gold text-center font-display">
-              Tilldelade karaktärer
+              {t.summaryTitle}
             </DialogTitle>
             <DialogDescription className="text-center text-muted-foreground text-sm">
-              Här är alla spelare och deras unika regler/förmågor.
+              {t.summaryDesc}
             </DialogDescription>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-4">
             {activeRelations.length > 0 && (
               <div className="bento mb-4 p-3">
-                <div className="font-display text-lg text-gradient-gold mb-2">Allianser &amp; fiendskap</div>
+                <div className="font-display text-lg text-gradient-gold mb-2">{t.alliancesTitle}</div>
                 <ul className="flex flex-wrap gap-2">
                   {activeRelations.map((r, i) => (
                     <li key={i}>
@@ -604,12 +606,12 @@ export function CharacterWheel() {
                             color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
                           }}
                         >
-                          {r.kind === "ally" ? "Allierade" : "Fiender"}
+                          {r.kind === "ally" ? t.allies : t.enemies}
                         </span>
                         <span className="font-display text-sm">
                           {nameToPlayer.get(r.a) ?? "?"} &amp; {nameToPlayer.get(r.b) ?? "?"}
                         </span>
-                        <span className="text-muted-foreground"> — {r.label}</span>
+                        <span className="text-muted-foreground"> — {relationLabel(r, lang)}</span>
                       </button>
                     </li>
                   ))}
@@ -626,10 +628,10 @@ export function CharacterWheel() {
                     <div className="flex items-center gap-2 mb-3">
                       <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: factionColor(f) }} />
                       <h4 className="font-display text-xl shrink-0" style={{ color: factionColor(f) }}>
-                        {factionLabel[f]}
+                        {factionLabels[lang][f]}
                       </h4>
                       <span className="text-sm uppercase tracking-widest text-muted-foreground shrink-0">
-                        {group.length} spelare
+                        {group.length} {t.playersCount}
                       </span>
                       <div className="flex-1 h-[1px] bg-border/50 min-w-0" />
                     </div>
@@ -652,24 +654,24 @@ export function CharacterWheel() {
                           <div className="mb-1.5">
                             <div className="font-display text-2xl text-gradient-gold leading-tight">{a.character.name}</div>
                             <div className="text-sm uppercase tracking-widest text-muted-foreground">
-                              {factionLabel[a.character.faction]}
+                              {factionLabels[lang][a.character.faction]}
                             </div>
                           </div>
                           <div className="mb-2 pb-2 border-b border-border/40">
-                            <div className="text-sm text-muted-foreground uppercase tracking-wider">Spelare</div>
+                            <div className="text-sm text-muted-foreground uppercase tracking-wider">{t.playerLabel}</div>
                             <div className="font-display text-lg leading-tight">{a.player}</div>
                           </div>
                           <div className="space-y-1 flex-1">
-                            <div className="text-sm text-muted-foreground uppercase tracking-wider">Regler / förmågor</div>
+                            <div className="text-sm text-muted-foreground uppercase tracking-wider">{t.rulesLabel}</div>
                             <ul className="space-y-1.5 text-base text-foreground/90 list-disc list-outside pl-4 leading-relaxed">
-                              {a.character.rules.map((r, idx) => (
+                              {characterRules(a.character, lang).map((r, idx) => (
                                 <li key={idx}>{r}</li>
                               ))}
                             </ul>
                           </div>
                           {rels.length > 0 && (
                             <div className="mt-2 pt-2 border-t border-border/40 space-y-1">
-                              <div className="text-sm text-muted-foreground uppercase tracking-wider">Kopplingar</div>
+                              <div className="text-sm text-muted-foreground uppercase tracking-wider">{t.connections}</div>
                               {rels.map((r, idx) => {
                                 const other = r.a === a.character.name ? r.b : r.a;
                                 return (
@@ -683,10 +685,10 @@ export function CharacterWheel() {
                                     className="block w-full text-left text-sm leading-snug hover:underline"
                                   >
                                     <span style={{ color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)" }}>
-                                      {r.kind === "ally" ? "Allierad" : "Fiende"}
+                                      {r.kind === "ally" ? t.ally : t.enemy}
                                     </span>{" "}
                                     <span className="font-display">{nameToPlayer.get(other) ?? "?"}</span>
-                                    <span className="text-muted-foreground"> — {r.label}</span>
+                                    <span className="text-muted-foreground"> — {relationLabel(r, lang)}</span>
                                   </button>
                                 );
                               })}
@@ -714,7 +716,7 @@ export function CharacterWheel() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="px-5 py-2 rounded-full bg-card/70 border border-gold/40 text-center ring-glow"
               >
-                <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Börjar spelet</div>
+                <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">{t.startsGame}</div>
                 <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
               </motion.div>
             )}
@@ -725,11 +727,11 @@ export function CharacterWheel() {
                 disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
                 className="rounded-full border-gold/25 hover:border-gold/60"
               >
-                <Dices className="h-4 w-4 mr-2" /> Dra om lott
+                <Dices className="h-4 w-4 mr-2" /> {t.redraw}
               </Button>
               <Button onClick={() => setShowSummary(false)} variant="outline" className="rounded-full border-gold/25 hover:border-gold/60">
-                Stäng
-              </Button>
+                  {t.close}
+                </Button>
             </div>
           </div>
         </DialogContent>
@@ -740,7 +742,7 @@ export function CharacterWheel() {
         <DialogContent className="w-[92vw] max-w-lg bg-background/95 border-gold/30">
           <DialogHeader>
             <DialogTitle className="text-2xl text-gradient-gold text-center font-display">
-              {selectedRelation?.kind === "ally" ? "Allians" : "Fiendskap"}
+              {selectedRelation?.kind === "ally" ? t.alliance : t.enmity}
             </DialogTitle>
             <DialogDescription className="text-center text-muted-foreground text-sm">
               {selectedRelation && (
@@ -762,16 +764,16 @@ export function CharacterWheel() {
                     color: selectedRelation.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
                   }}
                 >
-                  {selectedRelation.kind === "ally" ? "Allierade" : "Fiender"}
+                  {selectedRelation.kind === "ally" ? t.allies : t.enemies}
                 </div>
-                <p className="text-foreground/90 leading-relaxed">{selectedRelation.detail}</p>
+                <p className="text-foreground/90 leading-relaxed">{relationDetail(selectedRelation, lang)}</p>
               </>
             )}
           </div>
           <div className="flex justify-center pb-2">
             <Button onClick={() => setSelectedRelation(null)} variant="outline" className="rounded-full border-gold/25 hover:border-gold/60">
-              Stäng
-            </Button>
+                  {t.close}
+                </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -789,15 +791,15 @@ export function CharacterWheel() {
                   {selectedCharacter.character.name}
                 </DialogTitle>
                 <DialogDescription className="text-muted-foreground text-sm">
-                  {factionLabel[selectedCharacter.character.faction]} — spelas av{" "}
+                  {factionLabels[lang][selectedCharacter.character.faction]} — {t.playedBy}{" "}
                   <span className="font-display text-foreground">{selectedCharacter.player}</span>
                 </DialogDescription>
               </DialogHeader>
               <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
                 <div>
-                  <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">Regler / förmågor</h4>
+                  <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">{t.rulesLabel}</h4>
                   <ul className="space-y-3 text-base list-disc list-outside pl-5 leading-relaxed">
-                    {selectedCharacter.character.rules.map((r, idx) => (
+                    {characterRules(selectedCharacter.character, lang).map((r, idx) => (
                       <li key={idx} className="text-foreground/90">{r}</li>
                     ))}
                   </ul>
@@ -814,7 +816,7 @@ export function CharacterWheel() {
                   if (rels.length === 0) return null;
                   return (
                     <div>
-                      <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">Kopplingar</h4>
+                      <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-3">{t.connections}</h4>
                       <div className="space-y-2">
                         {rels.map((r, idx) => {
                           const other = r.a === selectedCharacter.character.name ? r.b : r.a;
@@ -832,10 +834,10 @@ export function CharacterWheel() {
                                   color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
                                 }}
                               >
-                                {r.kind === "ally" ? "Allierad" : "Fiende"}
+                                {r.kind === "ally" ? t.ally : t.enemy}
                               </span>
                               <span className="font-display">{nameToPlayer.get(other) ?? "?"}</span>
-                              <span className="text-muted-foreground"> — {r.label}</span>
+                              <span className="text-muted-foreground"> — {relationLabel(r, lang)}</span>
                             </button>
                           );
                         })}
@@ -846,7 +848,7 @@ export function CharacterWheel() {
               </div>
               <div className="shrink-0 px-6 py-3 border-t border-border/40 flex justify-center bg-background/80">
                 <Button onClick={() => setSelectedCharacter(null)} variant="outline" className="rounded-full border-gold/25 hover:border-gold/60">
-                  Stäng
+                  {t.close}
                 </Button>
               </div>
             </>
