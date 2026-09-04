@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/i18n";
 import { Maximize, Minimize, Tv } from "lucide-react";
 
 const STORAGE_KEY = "baraddur:tv";
@@ -43,7 +44,7 @@ export function TvToggle() {
       <button
         type="button"
         onClick={toggleFullscreen}
-        aria-label={fullscreen ? "Avsluta fullskärm" : "Fullskärm"}
+        aria-label={fullscreen ? t.exitFullscreen : t.fullscreen}
         className={`${base} border-border/60 text-foreground hover:border-primary/60`}
       >
         {fullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
@@ -51,7 +52,7 @@ export function TvToggle() {
       <button
         type="button"
         onClick={toggleTv}
-        aria-label={tv ? "Stäng TV-läge" : "Slå på TV-läge"}
+        aria-label={tv ? t.tvOff : t.tvOn}
         aria-pressed={tv}
         className={`${base} ${
           tv ? "border-primary text-primary ring-glow" : "border-border/60 text-foreground hover:border-primary/60"
