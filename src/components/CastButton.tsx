@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/i18n";
 import { Cast } from "lucide-react";
 
 const GAME_STORAGE_KEY = "baraddur:game";
@@ -19,6 +20,7 @@ function encodeState(json: string): string {
 }
 
 export function CastButton() {
+  const { t } = useLanguage();
   const [supported, setSupported] = useState(false);
   const [casting, setCasting] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -66,13 +68,9 @@ export function CastButton() {
       type="button"
       onClick={handleClick}
       disabled={loading}
-      aria-label={casting ? "Castar till TV" : "Casta till Chromecast/TV"}
+      aria-label={casting ? t.casting : t.castTo}
       aria-pressed={casting}
-      title={
-        casting
-          ? "Spelet visas på TV:n (stäng fliken på TV:n för att sluta)"
-          : "Casta till Chromecast/TV"
-      }
+      title={casting ? t.castingTitle : t.castTo}
       className={`fixed top-4 right-28 z-50 h-11 w-11 rounded-full border bg-card/80 backdrop-blur flex items-center justify-center transition-colors ${
         casting
           ? "border-primary text-primary ring-glow"

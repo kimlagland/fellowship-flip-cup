@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/i18n";
 import { Moon, Sun } from "lucide-react";
 
 const STORAGE_KEY = "baraddur:theme";
 
 export function ThemeToggle() {
+  const { t } = useLanguage();
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label={theme === "dark" ? "Byt till ljust tema" : "Byt till mörkt tema"}
+      aria-label={theme === "dark" ? t.toLight : t.toDark}
       className="fixed top-4 right-4 z-50 h-11 w-11 rounded-full border border-border/60 bg-card/80 backdrop-blur flex items-center justify-center text-foreground hover:border-primary/60 transition-colors"
     >
       {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
