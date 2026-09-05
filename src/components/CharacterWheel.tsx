@@ -429,31 +429,6 @@ export function CharacterWheel() {
         )}
 
 
-        {/* Assignments */}
-        {assignments.length > 0 && (
-          <div className="pt-4 space-y-3">
-            <h4 className="text-xl text-gradient-gold">{t.assignments}</h4>
-            {assignments.map((a, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="bento flex items-center justify-between p-4"
-                style={{ borderLeft: `4px solid ${factionColor(a.character.faction)}` }}
-              >
-                <div>
-                  <div className="font-display text-lg">{a.player}</div>
-                  <div className="text-sm uppercase tracking-widest text-muted-foreground">
-                    {factionLabels[lang][a.character.faction]}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-display text-xl text-gradient-gold">{a.character.name}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Reel */}
