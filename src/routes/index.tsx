@@ -27,9 +27,9 @@ function CharacterCard(c: typeof characters[number]) {
   const color =
     faction === "good" ? "var(--color-good)" : faction === "evil" ? "var(--color-evil)" : "var(--color-neutral)";
   return (
-    <div className="bento p-6 h-full transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_40px_-20px_var(--ember)]">
+    <div className="bento p-6 h-full border-t-2 transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_18px_40px_-20px_var(--ember)]">
       <div className="flex items-center justify-between gap-3 mb-4">
-        <h3 className="font-display text-xl text-gradient-gold">{name}</h3>
+        <h3 className="font-display text-3xl text-foreground uppercase">{name}</h3>
         <span
           className="shrink-0 rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.15em]"
           style={{ color, background: `color-mix(in oklab, ${color} 15%, transparent)`, border: `1px solid color-mix(in oklab, ${color} 35%, transparent)` }}
@@ -54,29 +54,29 @@ function Index() {
       <TvToggle />
       <CastButton />
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden border-b border-border/50">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-30 blur-3xl"
             style={{ background: "radial-gradient(circle, oklch(0.7 0.25 45), transparent 70%)" }} />
         </div>
-        <div className="relative max-w-5xl 2xl:max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-16 text-center">
+        <div className="relative max-w-6xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 pt-28 sm:pt-36 pb-16 text-center md:text-left">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="inline-block outline-pill px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-muted-foreground mb-8">{t.eyebrow}</div>
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl break-words text-gradient-gold leading-none mb-6">
+            <div className="inline-block border-l-2 border-primary pl-3 text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground mb-6">{t.eyebrow}</div>
+            <h1 className="text-7xl sm:text-8xl md:text-[10rem] lg:text-[12rem] break-words text-primary uppercase leading-[0.78] mb-8">
               Barad'dur
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto" style={{ fontFamily: "var(--font-body)" }}>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto md:mx-0" style={{ fontFamily: "var(--font-body)" }}>
               {t.tagline}
             </p>
-            <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row sm:flex-wrap justify-center gap-3 sm:gap-4">
-              <a href="#wheel" className="ember-pill px-8 py-3.5 font-display text-sm font-semibold tracking-wide">
+            <div className="mt-10 flex flex-col sm:flex-row sm:flex-wrap justify-center md:justify-start gap-3">
+              <a href="#wheel" className="ember-pill px-8 py-3.5 font-display text-xl uppercase tracking-wide">
                 {t.ctaWheel}
               </a>
-              <a href="#rules" className="outline-pill px-8 py-3.5 font-display text-sm font-semibold tracking-wide text-foreground">
+              <a href="#rules" className="outline-pill px-8 py-3.5 font-display text-xl uppercase tracking-wide text-foreground">
                 {t.ctaRules}
               </a>
             </div>
@@ -85,14 +85,14 @@ function Index() {
       </section>
 
       {/* Wheel */}
-      <section id="wheel" className="relative py-24 border-y border-border/40" style={{
+      <section id="wheel" className="relative py-20 sm:py-28 border-b border-border/40" style={{
         background: "linear-gradient(180deg, transparent, color-mix(in oklab, var(--ember) 8%, transparent), transparent)",
       }}>
         <div className="max-w-6xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6">
-          <div className="text-center mb-16">
-            <div className="inline-block outline-pill px-4 py-1.5 text-xs uppercase tracking-[0.4em] text-muted-foreground mb-6">{t.wheelEyebrow}</div>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl text-gradient-gold mb-4">{t.wheelTitle}</h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+          <div className="text-center md:text-left mb-14 max-w-3xl">
+            <div className="inline-block border-l-2 border-primary pl-3 text-xs uppercase tracking-[0.35em] text-muted-foreground mb-5">{t.wheelEyebrow}</div>
+            <h2 className="text-5xl sm:text-6xl md:text-7xl text-foreground uppercase mb-3">{t.wheelTitle}</h2>
+            <p className="text-lg text-muted-foreground max-w-xl md:mx-0">
               {t.wheelSubtitle}
             </p>
           </div>
@@ -101,7 +101,7 @@ function Index() {
       </section>
 
       {/* Rules */}
-      <div id="rules" className="max-w-5xl 2xl:max-w-6xl mx-auto px-4 sm:px-6 py-20 grid gap-6">
+      <div id="rules" className="max-w-6xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6 py-20 grid lg:grid-cols-2 gap-x-12 gap-y-0">
         <RuleSection eyebrow={t.chapter1} title={t.basicRules}>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="rounded-2xl p-6 bg-background/40 border border-border/60">
@@ -190,9 +190,12 @@ function Index() {
         })}
       </div>
 
-      <footer className="border-t border-border/40 py-10 text-center text-sm text-muted-foreground">
-        <p className="italic">{t.footerQuote}</p>
-        <p className="mt-2">{t.footerNote}</p>
+      <footer className="w-full border-t border-border/40 py-14 text-sm text-muted-foreground">
+        <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center px-6 text-center">
+          <div className="mb-5 h-0.5 w-20 bg-primary/70" />
+          <p className="font-display text-2xl uppercase text-foreground">{t.footerQuote}</p>
+          <p className="mt-2">{t.footerNote}</p>
+        </div>
       </footer>
     </main>
   );

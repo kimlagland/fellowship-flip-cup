@@ -280,11 +280,11 @@ export function CharacterWheel() {
   const isResultLocked = !spinning && highlight && reel.length > 0;
 
   return (
-    <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] items-start">
+    <div className="grid gap-10 lg:grid-cols-12 lg:gap-8 items-start">
       {/* Players panel */}
-      <div className="space-y-6">
+      <div className="bento space-y-6 border-l-4 border-l-primary p-5 sm:p-6 lg:col-span-4">
         <div>
-          <h3 className="text-2xl text-gradient-gold mb-1">{t.fellowship}</h3>
+          <h3 className="text-4xl uppercase text-foreground mb-1">{t.fellowship}</h3>
           <p className="text-muted-foreground text-sm">{t.fellowshipHint}</p>
         </div>
 
@@ -315,7 +315,7 @@ export function CharacterWheel() {
                   }
                 }}
                 placeholder={t.playerPlaceholder(i + 1)}
-                className="bg-input/60 border-border/60 rounded-xl font-body text-base h-11"
+                className="bg-background/70 border-border/60 rounded-sm font-body text-base h-12 focus-visible:ring-primary"
                 disabled={spinning || assignments.length > 0}
               />
               {players.length > 1 && (
@@ -338,7 +338,7 @@ export function CharacterWheel() {
             variant="outline"
             onClick={addPlayer}
             disabled={spinning || assignments.length > 0}
-            className="rounded-full border-gold/25 hover:border-gold/60"
+            className="rounded-sm border-gold/25 hover:border-gold/60"
           >
             <Plus className="h-4 w-4 mr-2" /> {t.addPlayer}
           </Button>
@@ -346,7 +346,7 @@ export function CharacterWheel() {
             <Button
               onClick={startSpin}
               disabled={validPlayers.length === 0 || spinning}
-              className="ember-pill px-6 font-display font-semibold tracking-wide hover:bg-transparent"
+              className="ember-pill min-h-12 px-6 font-display text-xl uppercase tracking-wide hover:bg-primary/90"
             >
               <Sparkles className="h-4 w-4 mr-2" />
               {t.spin}
@@ -355,11 +355,11 @@ export function CharacterWheel() {
             <>
               <Button
                 onClick={() => setShowSummary(true)}
-                className="ember-pill px-6 font-display font-semibold tracking-wide hover:bg-transparent"
+                className="ember-pill min-h-12 px-6 font-display text-xl uppercase tracking-wide hover:bg-primary/90"
               >
                 <ScrollText className="h-4 w-4 mr-2" /> {t.showSummary}
               </Button>
-              <Button onClick={reset} variant="outline" className="rounded-full border-gold/25 hover:border-gold/60">
+              <Button onClick={reset} variant="outline" className="rounded-sm border-gold/25 hover:border-gold/60">
                 <RotateCcw className="h-4 w-4 mr-2" /> {t.restart}
               </Button>
             </>
@@ -372,7 +372,7 @@ export function CharacterWheel() {
             variant="outline"
             onClick={randomizeTeams}
             disabled={validPlayers.length < 2 || spinning}
-            className="rounded-full border-gold/25 hover:border-gold/60"
+            className="rounded-sm border-gold/25 hover:border-gold/60"
           >
             <Users className="h-4 w-4 mr-2" /> {t.randomTeams}
           </Button>
@@ -380,7 +380,7 @@ export function CharacterWheel() {
             variant="outline"
             onClick={drawFirstPlayer}
             disabled={spinning || assignments.length === 0 || assignments.length < validPlayers.length}
-            className="rounded-full border-gold/25 hover:border-gold/60"
+            className="rounded-sm border-gold/25 hover:border-gold/60"
           >
             <Dices className="h-4 w-4 mr-2" /> {firstPlayer ? t.redraw : t.drawFirst}
           </Button>
@@ -432,11 +432,11 @@ export function CharacterWheel() {
       </div>
 
       {/* Reel */}
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-6 lg:col-span-8">
         {currentPlayer && spinning && (
           <div className="text-center">
             <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">{t.spinningFor}</div>
-            <div className="font-display text-3xl text-gradient-gold">{currentPlayer}</div>
+            <div className="font-display text-5xl uppercase text-primary">{currentPlayer}</div>
           </div>
         )}
         {!spinning && highlight && (
@@ -448,16 +448,16 @@ export function CharacterWheel() {
             <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
               {assignments[assignments.length - 1]?.player} {t.got}
             </div>
-            <div className="font-display text-3xl text-gradient-gold">{highlight.name}</div>
+            <div className="font-display text-5xl uppercase text-primary">{highlight.name}</div>
           </motion.div>
         )}
         {!currentPlayer && !highlight && (
           <div className="text-center">
-            <div className="font-display text-2xl text-muted-foreground">{t.idleReel}</div>
+            <div className="font-display text-3xl uppercase text-muted-foreground">{t.idleReel}</div>
           </div>
         )}
 
-        <div className="relative w-full max-w-md">
+        <div className="relative w-full max-w-3xl">
           {/* Pointers */}
           <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 z-20">
             <div
@@ -465,8 +465,8 @@ export function CharacterWheel() {
               style={{
                 borderTop: "12px solid transparent",
                 borderBottom: "12px solid transparent",
-                borderLeft: "22px solid var(--color-gold)",
-                filter: "drop-shadow(0 0 10px var(--color-gold))",
+                borderLeft: "22px solid var(--color-ember)",
+                filter: "drop-shadow(0 0 10px var(--color-ember))",
               }}
             />
           </div>
@@ -476,15 +476,15 @@ export function CharacterWheel() {
               style={{
                 borderTop: "12px solid transparent",
                 borderBottom: "12px solid transparent",
-                borderRight: "22px solid var(--color-gold)",
-                filter: "drop-shadow(0 0 10px var(--color-gold))",
+                borderRight: "22px solid var(--color-ember)",
+                filter: "drop-shadow(0 0 10px var(--color-ember))",
               }}
             />
           </div>
 
           {/* Window */}
           <div
-            className="relative overflow-hidden rounded-3xl ring-glow border border-gold/20 bg-card/70 backdrop-blur-sm"
+            className="relative overflow-hidden rounded-sm ring-glow border-2 border-border/70 bg-card"
             style={{ height: VISIBLE_COUNT * itemHeight }}
           >
             {/* Center marker */}
@@ -492,9 +492,9 @@ export function CharacterWheel() {
               className="absolute left-0 right-0 z-10 pointer-events-none"
               style={{ top: CENTER_INDEX * itemHeight, height: itemHeight }}
             >
-              <div className="absolute inset-0 bg-gold/5" />
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gold/50" />
-              <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gold/50" />
+              <div className="absolute inset-0 bg-primary/5 shadow-[inset_0_0_42px_color-mix(in_oklab,var(--ember)_20%,transparent)]" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-primary" />
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary" />
             </div>
 
             <motion.div animate={controls} className="absolute left-0 right-0">
@@ -503,16 +503,13 @@ export function CharacterWheel() {
                 return (
                   <div
                     key={`${c.name}-${i}`}
-                    className="flex items-center justify-center px-10 border-b border-border/30 transition-colors"
-                    style={{
-                      height: itemHeight,
-                      borderLeft: `5px solid ${factionColor(c.faction)}`,
-                    }}
+                    className="flex items-center justify-center px-10 transition-colors"
+                    style={{ height: itemHeight }}
                   >
                     <div className="text-center">
                       <div
                         className={`font-display leading-tight ${
-                          isWinner ? "text-3xl text-gradient-gold" : "text-2xl text-foreground/90"
+                          isWinner ? "text-5xl text-primary" : "text-3xl text-foreground/80"
                         }`}
                       >
                         {c.name}
@@ -551,15 +548,15 @@ export function CharacterWheel() {
 
         {/* Assignments */}
         {assignments.length > 0 && (
-          <div className="w-full max-w-md pt-2 space-y-3">
-            <h4 className="text-xl text-gradient-gold">{t.assignments}</h4>
+          <div className="w-full max-w-3xl pt-4 space-y-3">
+            <h4 className="text-3xl uppercase text-primary">{t.assignments}</h4>
             {assignments.map((a, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bento flex items-center justify-between p-4"
-                style={{ borderLeft: `4px solid ${factionColor(a.character.faction)}` }}
+                className="bento flex items-center justify-between p-4 border-t-2"
+                style={{ borderTopColor: factionColor(a.character.faction) }}
               >
                 <div>
                   <div className="font-display text-lg">{a.player}</div>
@@ -568,7 +565,7 @@ export function CharacterWheel() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-display text-xl text-gradient-gold">{a.character.name}</div>
+                  <div className="font-display text-2xl uppercase text-primary">{a.character.name}</div>
                 </div>
               </motion.div>
             ))}
@@ -578,10 +575,10 @@ export function CharacterWheel() {
 
       {/* Summary modal */}
       <Dialog open={showSummary} onOpenChange={setShowSummary}>
-        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-[1600px] sm:h-[92vh] sm:max-h-[1200px] sm:rounded-3xl p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
+        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-[1600px] sm:h-[92vh] sm:max-h-[1200px] sm:rounded-sm p-0 overflow-hidden bg-background/95 border-primary/30 flex flex-col">
           <DialogHeader className="shrink-0 px-6 pt-5 pb-3 border-b border-border/40">
             <DialogTitle className="text-3xl text-gradient-gold text-center font-display">
-              {t.summaryTitle}
+              <span className="text-5xl uppercase text-primary">{t.summaryTitle}</span>
             </DialogTitle>
             <DialogDescription className="text-center text-muted-foreground text-sm">
               {t.summaryDesc}
@@ -649,11 +646,11 @@ export function CharacterWheel() {
                           transition={{ delay: i * 0.05 }}
                           whileHover={{ scale: 1.03 }}
                           onClick={() => setSelectedCharacter(a)}
-                          className="bento p-4 flex flex-col text-base cursor-pointer hover:border-gold/40 transition-colors"
-                          style={{ borderLeft: `3px solid ${factionColor(a.character.faction)}` }}
+                          className="bento p-4 flex flex-col text-base cursor-pointer border-t-2 hover:border-gold/40 transition-colors"
+                          style={{ borderTopColor: factionColor(a.character.faction) }}
                         >
                           <div className="mb-1.5">
-                            <div className="font-display text-2xl text-gradient-gold leading-tight">{a.character.name}</div>
+                            <div className="font-display text-3xl uppercase text-primary leading-tight">{a.character.name}</div>
                             <div className="text-sm uppercase tracking-widest text-muted-foreground">
                               {factionLabels[lang][a.character.faction]}
                             </div>
@@ -781,7 +778,7 @@ export function CharacterWheel() {
 
       {/* Character detail dialog */}
       <Dialog open={selectedCharacter !== null} onOpenChange={(open) => !open && setSelectedCharacter(null)}>
-        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-2xl sm:h-[90vh] sm:rounded-3xl max-h-[900px] p-0 overflow-hidden bg-background/95 border-gold/30 flex flex-col">
+        <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-2xl sm:h-[90vh] sm:rounded-sm max-h-[900px] p-0 overflow-hidden bg-background/95 border-primary/30 flex flex-col">
           {selectedCharacter && (
             <>
               <DialogHeader

@@ -38,7 +38,7 @@ export function TvToggle() {
   };
 
   const base =
-    "h-11 w-11 rounded-full border bg-card/80 backdrop-blur flex items-center justify-center transition-colors";
+    "h-11 w-11 rounded-sm border bg-card/90 backdrop-blur flex items-center justify-center transition-colors";
 
   return (
     <div className="fixed top-4 right-16 z-50 flex gap-2">
