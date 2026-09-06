@@ -71,7 +71,7 @@ export function CastButton() {
       aria-label={casting ? t.casting : t.castTo}
       aria-pressed={casting}
       title={casting ? t.castingTitle : t.castTo}
-      className={`fixed top-4 right-28 z-50 h-11 w-11 rounded-full border bg-card/80 backdrop-blur flex items-center justify-center transition-colors ${
+      className={`fixed top-4 right-28 z-50 h-11 w-11 rounded-sm border bg-card/90 backdrop-blur flex items-center justify-center transition-colors ${
         casting
           ? "border-primary text-primary ring-glow"
           : "border-border/60 text-foreground hover:border-primary/60"
