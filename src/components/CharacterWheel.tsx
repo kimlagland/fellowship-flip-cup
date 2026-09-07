@@ -346,16 +346,16 @@ export function CharacterWheel() {
             <Button
               onClick={startSpin}
               disabled={validPlayers.length === 0 || spinning}
-              className="ember-pill min-h-12 px-6 font-display text-xl uppercase tracking-wide hover:bg-primary/90"
+              className="ember-pill min-h-12 px-6 font-display text-xl uppercase tracking-wide hover:bg-primary/90 whitespace-normal text-center leading-tight"
             >
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkles className="h-4 w-4 mr-2 shrink-0" />
               {t.spin}
             </Button>
           ) : (
             <>
               <Button
                 onClick={() => setShowSummary(true)}
-                className="ember-pill min-h-12 px-6 font-display text-xl uppercase tracking-wide hover:bg-primary/90"
+                className="ember-pill min-h-12 px-6 font-display text-xl uppercase tracking-wide hover:bg-primary/90 whitespace-normal text-center leading-tight"
               >
                 <ScrollText className="h-4 w-4 mr-2" /> {t.showSummary}
               </Button>
