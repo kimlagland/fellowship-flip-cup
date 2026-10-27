@@ -12,7 +12,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Plus, X, Sparkles, RotateCcw, ScrollText, Users, Dices, Trash2 } from "lucide-react";
+import { Plus, X, Sparkles, RotateCcw, ScrollText, Users, Dices, Trash2, Swords, Handshake, Play, Feather } from "lucide-react";
+import { playSpinTicks, playReveal, playFanfare } from "@/lib/sound";
+import { ActiveGameView } from "@/components/ActiveGameView";
 
 
 interface Assignment {
@@ -84,6 +86,7 @@ export function CharacterWheel() {
   const [firstPlayer, setFirstPlayer] = useState<string | null>(null);
   const [hasSaved, setHasSaved] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [gameOpen, setGameOpen] = useState(false);
   const { lang, t } = useLanguage();
   const controls = useAnimation();
   const itemHeight = useItemHeight();
@@ -176,6 +179,7 @@ export function CharacterWheel() {
   const drawFirstPlayer = () => {
     if (validPlayers.length === 0) return;
     setFirstPlayer(validPlayers[Math.floor(Math.random() * validPlayers.length)]);
+    playFanfare();
   };
 
   const clearSaved = () => {
@@ -229,6 +233,7 @@ export function CharacterWheel() {
 
     const finalY = -(wIdx * itemHeight) + CENTER_INDEX * itemHeight;
 
+    playSpinTicks(wIdx - CENTER_INDEX, SPIN_DURATION);
     await controls.start({
       y: finalY,
       transition: { duration: SPIN_DURATION, ease: [0.15, 0.8, 0.25, 1] },
@@ -239,6 +244,7 @@ export function CharacterWheel() {
     setAssignments(nextAcc);
     setHighlight(pick);
     setSpinning(false);
+    playReveal();
 
     if (idx + 1 < list.length) {
       setCurrentIdx(idx + 1);
@@ -274,6 +280,33 @@ export function CharacterWheel() {
   const activeRelations = useMemo(
     () => findRelations(assignments.map((a) => a.character.name)),
     [assignments],
+  );
+  const loneWolves = useMemo(
+    () =>
+      assignments.filter(
+        (a) => !activeRelations.some((r) => r.a === a.character.name || r.b === a.character.name),
+      ),
+    [assignments, activeRelations],
+  );
+
+  const allAssigned = !spinning && assignments.length > 0 && assignments.length === validPlayers.length;
+  const openGame = () => {
+    setShowSummary(false);
+    setGameOpen(true);
+  };
+  const startGameButton = (
+    <motion.div
+      animate={{ scale: [1, 1.04, 1] }}
+      transition={{ duration: 1.8, repeat: Infinity }}
+      className="inline-flex"
+    >
+      <Button
+        onClick={openGame}
+        className="ember-pill ring-glow min-h-12 px-6 font-display text-xl uppercase tracking-wide hover:bg-primary/90"
+      >
+        <Play className="h-4 w-4 mr-2" /> {t.startGame}
+      </Button>
+    </motion.div>
   );
 
   const displayedReel = reel.length > 0 ? reel : previewChars;
@@ -353,9 +386,13 @@ export function CharacterWheel() {
             </Button>
           ) : (
             <>
+              {allAssigned && startGameButton}
               <Button
                 onClick={() => setShowSummary(true)}
-                className="ember-pill min-h-12 px-6 font-display text-xl uppercase tracking-wide hover:bg-primary/90 whitespace-normal text-center leading-tight"
+                variant={allAssigned ? "outline" : "default"}
+                className={allAssigned
+                  ? "rounded-sm border-gold/25 hover:border-gold/60"
+                  : "ember-pill min-h-12 px-6 font-display text-xl uppercase tracking-wide hover:bg-primary/90 whitespace-normal text-center leading-tight"}
               >
                 <ScrollText className="h-4 w-4 mr-2" /> {t.showSummary}
               </Button>
@@ -587,34 +624,59 @@ export function CharacterWheel() {
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-4">
-            {activeRelations.length > 0 && (
-              <div className="bento mb-4 p-3">
-                <div className="font-display text-lg text-gradient-gold mb-2">{t.alliancesTitle}</div>
-                <ul className="flex flex-wrap gap-2">
-                  {activeRelations.map((r, i) => (
-                    <li key={i}>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedRelation(r)}
-                        className="text-sm bg-background/60 rounded-full px-3 py-1.5 border border-border/40 hover:bg-gold/10 hover:border-gold/40 transition-colors text-left"
-                      >
-                        <span
-                          className="inline-block px-1.5 py-0.5 mr-1.5 rounded text-sm uppercase tracking-wider align-middle"
-                          style={{
-                            background: r.kind === "ally" ? "color-mix(in oklab, var(--color-good) 20%, transparent)" : "color-mix(in oklab, var(--color-evil) 20%, transparent)",
-                            color: r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)",
-                          }}
-                        >
-                          {r.kind === "ally" ? t.allies : t.enemies}
-                        </span>
-                        <span className="font-display text-sm">
-                          {nameToPlayer.get(r.a) ?? "?"} &amp; {nameToPlayer.get(r.b) ?? "?"}
-                        </span>
-                        <span className="text-muted-foreground"> — {relationLabel(r, lang)}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+            {assignments.length > 0 && (
+              <div className="bento mb-4 p-4">
+                <div className="font-display text-2xl uppercase text-gradient-gold mb-3">{t.alliancesTitle}</div>
+                <div className="grid gap-4 md:grid-cols-3">
+                  {(["ally", "rival"] as const).map((kind) => {
+                    const list = activeRelations.filter((r) => r.kind === kind);
+                    if (list.length === 0) return null;
+                    const color = kind === "ally" ? "var(--color-good)" : "var(--color-evil)";
+                    const Icon = kind === "ally" ? Handshake : Swords;
+                    return (
+                      <div key={kind}>
+                        <div className="flex items-center gap-2 mb-2 text-sm uppercase tracking-widest" style={{ color }}>
+                          <Icon className="h-4 w-4" /> {kind === "ally" ? t.allies : t.enemies}
+                        </div>
+                        <ul className="space-y-2">
+                          {list.map((r, i) => (
+                            <li key={i}>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedRelation(r)}
+                                className="w-full text-left rounded-sm bg-background/60 px-3 py-2 border border-border/40 hover:bg-gold/10 hover:border-gold/40 transition-colors"
+                                style={{ borderLeft: `3px solid ${color}` }}
+                              >
+                                <div className="font-display text-base leading-tight">
+                                  {nameToPlayer.get(r.a) ?? "?"} <span className="text-muted-foreground">({r.a})</span>{" "}
+                                  <Icon className="inline h-4 w-4 mx-0.5 align-[-2px]" style={{ color }} />{" "}
+                                  {nameToPlayer.get(r.b) ?? "?"} <span className="text-muted-foreground">({r.b})</span>
+                                </div>
+                                <div className="text-sm text-muted-foreground">{relationLabel(r, lang)}</div>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                  {loneWolves.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-2 text-sm uppercase tracking-widest" style={{ color: "var(--color-neutral)" }}>
+                        <Feather className="h-4 w-4" /> {t.loneWolves}
+                      </div>
+                      <ul className="space-y-2">
+                        {loneWolves.map((a) => (
+                          <li key={a.player} className="rounded-sm bg-background/60 px-3 py-2 border border-border/40">
+                            <span className="font-display text-base">{a.player}</span>{" "}
+                            <span className="text-muted-foreground">({a.character.name})</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="mt-2 text-sm text-muted-foreground">{t.loneWolvesHint}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -719,7 +781,8 @@ export function CharacterWheel() {
                 <div className="font-display text-2xl text-gradient-gold">{firstPlayer}</div>
               </motion.div>
             )}
-            <div className="flex justify-center gap-3">
+            <div className="flex flex-wrap justify-center gap-3">
+              {allAssigned && startGameButton}
               <Button
                 variant="outline"
                 onClick={drawFirstPlayer}
@@ -735,6 +798,8 @@ export function CharacterWheel() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ActiveGameView open={gameOpen} onOpenChange={setGameOpen} assignments={assignments} teams={teams} />
 
       {/* Relation detail dialog */}
       <Dialog open={selectedRelation !== null} onOpenChange={(open) => !open && setSelectedRelation(null)}>

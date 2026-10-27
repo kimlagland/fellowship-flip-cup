@@ -16,3 +16,9 @@
   - [ ] Uppdaterade regler, kort och dialoger
   - [ ] Centrerad footer
   - [ ] Verifiera dator, mobil, TV och ljust tema
+- [x] Ljud, allianskarta, aktivt spelläge & kvällsstatistik
+  - [x] Syntetiserade ljud i snurran + ljudknapp i toppmenyn
+  - [x] Allianskarta med allierade, rivaler och ensamvargar
+  - [x] "Starta spel" → matchvy med timer, utslagning, lagvinst och Saurons vrede
+  - [x] Kvällsstatistik: vinstprocent per karaktär och första offret
+  - [ ] Verifiera snurrans ljud och animation i synlig webbläsare (mobil/TV)

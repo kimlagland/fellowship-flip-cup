@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { TvToggle } from "@/components/TvToggle";
 import { CastButton } from "@/components/CastButton";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { SoundToggle } from "@/components/SoundToggle";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -49,10 +50,13 @@ function Index() {
   const { lang, t } = useLanguage();
   return (
     <main className="min-h-screen">
-      <ThemeToggle />
-      <LanguageToggle />
-      <TvToggle />
-      <CastButton />
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <LanguageToggle />
+        <SoundToggle />
+        <CastButton />
+        <TvToggle />
+        <ThemeToggle />
+      </div>
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">

@@ -7,6 +7,7 @@ import { useLanguage } from "@/i18n";
 import type { Character } from "@/data/characters";
 import { wrathCards, type WrathCard } from "@/data/sauronsWrath";
 import { playEliminate, playRumble, playVictory } from "@/lib/sound";
+import { SoundToggle } from "@/components/SoundToggle";
 
 interface Assignment { player: string; character: Character }
 
@@ -17,7 +18,15 @@ export interface MatchRecord {
   winnerCharacter: string;
   firstOut: string | null;
   players: { player: string; character: string; faction: string; outAt: number | null }[];
+  /** Set when a whole team won; older records only have `winner`. */
+  winners?: string[];
+  winningTeam?: "good" | "evil";
 }
+
+type Teams = { good: string[]; evil: string[] } | null;
+
+/** Seconds until the next automatic wrath card: 4–8 minutes. */
+const randInterval = () => 240 + Math.floor(Math.random() * 240);
 
 const STATS_KEY = "baraddur:stats";
 
@@ -40,7 +49,7 @@ const S = {
     wrath: "Väck Saurons vrede", auto: "Automatisk vrede", autoHint: "Slumpas var 4–8 min", next: "Nästa vrede om",
     winner: "Vinnare", pickWinner: "Välj vinnare för att avsluta", finish: "Avsluta & spara match", close: "Stäng",
     stats: "Kvällens statistik", matches: "Matcher", totalTime: "Total tid", avgTime: "Snittid",
-    leaderboard: "Segerliga", wins: "vinster", bestChar: "Starkaste karaktär", firstOut: "Oftast först ute",
+    leaderboard: "Segerliga", wins: "vinster", bestChar: "Dödligaste karaktär", firstOut: "Oftast först ute", firstOutChar: "Första offret (karaktär)", teamWins: "vinner",
     factionWins: "Goda vs Onda", good: "Goda", evil: "Onda", neutral: "Neutrala", clear: "Rensa statistik",
     noStats: "Inga matcher spelade än i kväll.", saved: "Matchen sparad!", dismiss: "Uppfattat", history: "Matcher i kväll", outAt: "ute",
   },
@@ -50,34 +59,34 @@ const S = {
     wrath: "Awaken Sauron's Wrath", auto: "Automatic wrath", autoHint: "Random every 4–8 min", next: "Next wrath in",
     winner: "Winner", pickWinner: "Pick a winner to finish", finish: "Finish & save match", close: "Close",
     stats: "Tonight's stats", matches: "Matches", totalTime: "Total time", avgTime: "Average",
-    leaderboard: "Leaderboard", wins: "wins", bestChar: "Strongest character", firstOut: "Most often first out",
+    leaderboard: "Leaderboard", wins: "wins", bestChar: "Deadliest character", firstOut: "Most often first out", firstOutChar: "First victim (character)", teamWins: "win",
     factionWins: "Good vs Evil", good: "Good", evil: "Evil", neutral: "Neutral", clear: "Clear stats",
     noStats: "No matches played tonight yet.", saved: "Match saved!", dismiss: "Got it", history: "Tonight's matches", outAt: "out",
   },
 };
 
-export function ActiveGameView({ open, onOpenChange, assignments }: { open: boolean; onOpenChange: (o: boolean) => void; assignments: Assignment[] }) {
+export function ActiveGameView({ open, onOpenChange, assignments, teams = null }: { open: boolean; onOpenChange: (o: boolean) => void; assignments: Assignment[]; teams?: Teams }) {
   const { lang } = useLanguage();
   const s = S[lang];
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(true);
   const [out, setOut] = useState<Record<string, number>>({});
-  const [winner, setWinner] = useState<string | null>(null);
+  const [winners, setWinners] = useState<string[] | null>(null);
+  const winner = winners?.[0] ?? null;
   const [card, setCard] = useState<WrathCard | null>(null);
   const [auto, setAuto] = useState(true);
-  const [nextWrath, setNextWrath] = useState(0);
+  // Must start above 0, otherwise the countdown fires a card the instant the view opens
+  const [nextWrath, setNextWrath] = useState(() => randInterval());
   const [stats, setStats] = useState<MatchRecord[]>([]);
   const [tab, setTab] = useState<"game" | "stats">("game");
   const [savedMsg, setSavedMsg] = useState(false);
   const deck = useRef<number[]>([]);
 
-  const randInterval = () => 240 + Math.floor(Math.random() * 240);
-
   // Fresh match on open
   useEffect(() => {
     if (!open) return;
     setStats(loadStats());
-    setElapsed(0); setRunning(true); setOut({}); setWinner(null); setCard(null); setTab("game"); setSavedMsg(false);
+    setElapsed(0); setRunning(true); setOut({}); setWinners(null); setCard(null); setTab("game"); setSavedMsg(false);
     setNextWrath(randInterval());
   }, [open]);
 
@@ -102,24 +111,32 @@ export function ActiveGameView({ open, onOpenChange, assignments }: { open: bool
   }, [open, auto, running, winner, nextWrath, tab]);
 
   const alive = assignments.filter((a) => !(a.player in out));
+  const teamOf = (p: string) => (teams?.good.includes(p) ? "good" : teams?.evil.includes(p) ? "evil" : null);
+  const winningTeam = winners && winners.length > 1 ? teamOf(winners[0]) : null;
 
-  // Auto-crown last standing
+  // Auto-crown last standing player, or the last team standing when teams are drawn
   useEffect(() => {
-    if (!open || winner || assignments.length < 2) return;
-    if (alive.length === 1) { setWinner(alive[0].player); playVictory(); }
+    if (!open || winners || assignments.length < 2) return;
+    if (alive.length === 1) { setWinners([alive[0].player]); playVictory(); return; }
+    const side = alive.length > 0 ? teamOf(alive[0].player) : null;
+    if (side && alive.every((a) => teamOf(a.player) === side)) {
+      setWinners(assignments.filter((a) => teamOf(a.player) === side).map((a) => a.player));
+      playVictory();
+    }
   }, [alive.length, open]);
 
   const eliminate = (p: string) => { setOut({ ...out, [p]: elapsed }); playEliminate(); };
-  const revive = (p: string) => { const n = { ...out }; delete n[p]; setOut(n); if (winner) setWinner(null); };
+  const revive = (p: string) => { const n = { ...out }; delete n[p]; setOut(n); if (winners) setWinners(null); };
 
   const finish = () => {
-    if (!winner) return;
+    if (!winners || !winner) return;
     const w = assignments.find((a) => a.player === winner)!;
     const outs = Object.entries(out).sort((a, b) => a[1] - b[1]);
     const rec: MatchRecord = {
       date: Date.now(), durationSec: elapsed, winner, winnerCharacter: w.character.name,
       firstOut: outs[0]?.[0] ?? null,
       players: assignments.map((a) => ({ player: a.player, character: a.character.name, faction: a.character.faction, outAt: out[a.player] ?? null })),
+      winners, winningTeam: winningTeam ?? undefined,
     };
     const next = [...loadStats(), rec];
     localStorage.setItem(STATS_KEY, JSON.stringify(next));
@@ -134,12 +151,22 @@ export function ActiveGameView({ open, onOpenChange, assignments }: { open: bool
       return [...m.entries()].sort((a, b) => b[1] - a[1]);
     };
     const total = stats.reduce((n, r) => n + r.durationSec, 0);
-    const factionOf = (r: MatchRecord) => r.players.find((p) => p.player === r.winner)?.faction ?? "neutral";
+    const winnersOf = (r: MatchRecord) => r.winners ?? [r.winner];
+    const factionOf = (r: MatchRecord) => r.winningTeam ?? r.players.find((p) => p.player === r.winner)?.faction ?? "neutral";
+    // Deadliest character = highest win rate over the matches it was played in
+    const played = count(stats.flatMap((r) => r.players.map((p) => p.character)));
+    const charWins = new Map(count(stats.flatMap((r) => r.players.filter((p) => winnersOf(r).includes(p.player)).map((p) => p.character))));
+    const chars = played
+      .map(([c, n]) => ({ c, wins: charWins.get(c) ?? 0, played: n }))
+      .filter((x) => x.wins > 0)
+      .sort((a, b) => b.wins / b.played - a.wins / a.played || b.wins - a.wins);
+    const firstOutChar = (r: MatchRecord) => r.players.find((p) => p.player === r.firstOut)?.character;
     return {
       total, avg: stats.length ? Math.round(total / stats.length) : 0,
-      leaders: count(stats.map((r) => r.winner)),
-      chars: count(stats.map((r) => r.winnerCharacter)),
+      leaders: count(stats.flatMap(winnersOf)),
+      chars,
       firstOut: count(stats.map((r) => r.firstOut).filter(Boolean) as string[]),
+      firstOutChars: count(stats.map(firstOutChar).filter(Boolean) as string[]),
       factions: count(stats.map(factionOf)),
     };
   }, [stats]);
@@ -153,6 +180,7 @@ export function ActiveGameView({ open, onOpenChange, assignments }: { open: bool
           <div className="flex justify-center gap-2 pt-2">
             <Button size="sm" variant={tab === "game" ? "default" : "outline"} onClick={() => setTab("game")} className="rounded-sm"><Flame className="h-4 w-4 mr-1" />{s.title}</Button>
             <Button size="sm" variant={tab === "stats" ? "default" : "outline"} onClick={() => { setStats(loadStats()); setTab("stats"); }} className="rounded-sm"><BarChart3 className="h-4 w-4 mr-1" />{s.stats}</Button>
+            <SoundToggle />
           </div>
         </DialogHeader>
 
@@ -184,7 +212,14 @@ export function ActiveGameView({ open, onOpenChange, assignments }: { open: bool
                   <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bento p-5 text-center border-primary">
                     <Crown className="h-10 w-10 mx-auto text-gold" />
                     <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">{s.winner}</div>
-                    <div className="font-display text-5xl text-gradient-gold">{winner}</div>
+                    {winningTeam ? (
+                      <>
+                        <div className="font-display text-5xl uppercase" style={{ color: factionColor(winningTeam) }}>{s[winningTeam]} {s.teamWins}</div>
+                        <div className="font-display text-2xl text-gradient-gold">{winners!.join(" · ")}</div>
+                      </>
+                    ) : (
+                      <div className="font-display text-5xl text-gradient-gold">{winner}</div>
+                    )}
                     <Button onClick={finish} disabled={savedMsg} className="mt-3 rounded-sm">{savedMsg ? s.saved : s.finish}</Button>
                   </motion.div>
                 )}
@@ -206,7 +241,7 @@ export function ActiveGameView({ open, onOpenChange, assignments }: { open: bool
                             <Button size="sm" variant="ghost" onClick={() => revive(a.player)}><Undo2 className="h-4 w-4 mr-1" />{s.undo}</Button>
                           ) : (
                             <>
-                              {!winner && <Button size="sm" variant="ghost" title={s.winner} aria-label={s.winner} onClick={() => { setWinner(a.player); playVictory(); }}><Crown className="h-4 w-4" /></Button>}
+                              {!winner && <Button size="sm" variant="ghost" title={s.winner} aria-label={s.winner} onClick={() => { setWinners([a.player]); playVictory(); }}><Crown className="h-4 w-4" /></Button>}
                               <Button size="sm" variant="outline" onClick={() => eliminate(a.player)} disabled={!!winner} className="rounded-sm"><Skull className="h-4 w-4 mr-1" />{s.eliminate}</Button>
                             </>
                           )}
@@ -244,7 +279,7 @@ export function ActiveGameView({ open, onOpenChange, assignments }: { open: bool
   );
 }
 
-function StatsPanel({ s, stats, summary, clear }: { s: (typeof S)["sv"]; stats: MatchRecord[]; summary: { total: number; avg: number; leaders: [string, number][]; chars: [string, number][]; firstOut: [string, number][]; factions: [string, number][] }; clear: () => void }) {
+function StatsPanel({ s, stats, summary, clear }: { s: (typeof S)["sv"]; stats: MatchRecord[]; summary: { total: number; avg: number; leaders: [string, number][]; chars: { c: string; wins: number; played: number }[]; firstOut: [string, number][]; firstOutChars: [string, number][]; factions: [string, number][] }; clear: () => void }) {
   if (stats.length === 0) return <p className="text-center text-muted-foreground py-10 text-lg">{s.noStats}</p>;
   const fLabel = (f: string) => (f === "good" ? s.good : f === "evil" ? s.evil : s.neutral);
   return (
@@ -254,13 +289,15 @@ function StatsPanel({ s, stats, summary, clear }: { s: (typeof S)["sv"]; stats: 
           <div key={k} className="bento p-4 text-center"><div className="text-sm uppercase tracking-widest text-muted-foreground">{k}</div><div className="font-display text-4xl tabular-nums">{v}</div></div>
         ))}
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="bento p-4"><h4 className="font-display text-2xl uppercase text-primary mb-2">{s.leaderboard}</h4>
           <ol className="space-y-1">{summary.leaders.map(([p, n], i) => <li key={p} className="flex justify-between"><span>{i === 0 && <Crown className="inline h-4 w-4 mr-1 text-gold" />}{p}</span><span className="tabular-nums text-muted-foreground">{n} {s.wins}</span></li>)}</ol></div>
         <div className="bento p-4"><h4 className="font-display text-2xl uppercase text-primary mb-2">{s.bestChar}</h4>
-          <ol className="space-y-1">{summary.chars.slice(0, 5).map(([c, n]) => <li key={c} className="flex justify-between"><span>{c}</span><span className="tabular-nums text-muted-foreground">{n}</span></li>)}</ol></div>
+          <ol className="space-y-1">{summary.chars.slice(0, 5).map((x) => <li key={x.c} className="flex justify-between gap-2"><span>{x.c}</span><span className="tabular-nums text-muted-foreground">{Math.round((x.wins / x.played) * 100)}% ({x.wins}/{x.played})</span></li>)}</ol></div>
         <div className="bento p-4"><h4 className="font-display text-2xl uppercase text-primary mb-2">{s.firstOut}</h4>
           <ol className="space-y-1">{summary.firstOut.slice(0, 5).map(([p, n]) => <li key={p} className="flex justify-between"><span><Skull className="inline h-4 w-4 mr-1" />{p}</span><span className="tabular-nums text-muted-foreground">{n}</span></li>)}</ol></div>
+        <div className="bento p-4"><h4 className="font-display text-2xl uppercase text-primary mb-2">{s.firstOutChar}</h4>
+          <ol className="space-y-1">{summary.firstOutChars.slice(0, 5).map(([c, n]) => <li key={c} className="flex justify-between"><span><Skull className="inline h-4 w-4 mr-1" />{c}</span><span className="tabular-nums text-muted-foreground">{n}</span></li>)}</ol></div>
         <div className="bento p-4"><h4 className="font-display text-2xl uppercase text-primary mb-2">{s.factionWins}</h4>
           <ol className="space-y-1">{summary.factions.map(([f, n]) => <li key={f} className="flex justify-between"><span style={{ color: factionColor(f) }}>{fLabel(f)}</span><span className="tabular-nums text-muted-foreground">{n} {s.wins}</span></li>)}</ol></div>
       </div>
@@ -268,7 +305,7 @@ function StatsPanel({ s, stats, summary, clear }: { s: (typeof S)["sv"]; stats: 
         <ul className="space-y-1">{[...stats].reverse().map((r) => (
           <li key={r.date} className="flex flex-wrap justify-between gap-2 border-b border-border/30 py-1 last:border-0">
             <span className="tabular-nums text-muted-foreground">{new Date(r.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-            <span><Crown className="inline h-4 w-4 mr-1 text-gold" />{r.winner} ({r.winnerCharacter})</span>
+            <span><Crown className="inline h-4 w-4 mr-1 text-gold" />{r.winningTeam ? `${fLabel(r.winningTeam)}: ${(r.winners ?? []).join(", ")}` : `${r.winner} (${r.winnerCharacter})`}</span>
             <span className="tabular-nums">{fmt(r.durationSec)}</span>
           </li>))}</ul></div>
       <div className="flex justify-center"><Button variant="ghost" onClick={clear}><Trash2 className="h-4 w-4 mr-1" />{s.clear}</Button></div>

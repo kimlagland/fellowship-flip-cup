@@ -41,7 +41,7 @@ export function TvToggle() {
     "h-11 w-11 rounded-sm border bg-card/90 backdrop-blur flex items-center justify-center transition-colors";
 
   return (
-    <div className="fixed top-4 right-16 z-50 flex gap-2">
+    <div className="flex gap-2">
       <button
         type="button"
         onClick={toggleFullscreen}
