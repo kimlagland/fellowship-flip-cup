@@ -510,7 +510,8 @@ export function CharacterWheel() {
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary" />
             </div>
 
-            <motion.div animate={controls} className="absolute left-0 right-0">
+            {/* Above the center marker once locked, so its lines never cut through the winner */}
+            <motion.div animate={controls} className={`absolute left-0 right-0 ${isResultLocked ? "z-20" : ""}`}>
               {displayedReel.map((c, i) => {
                 const isWinner = isResultLocked && i === winnerIndex;
                 return (
@@ -519,22 +520,32 @@ export function CharacterWheel() {
                     className="flex items-center justify-center px-10 transition-colors"
                     style={{ height: itemHeight }}
                   >
-                    <div className="text-center">
-                      <div
-                        className={`font-display leading-tight ${
-                          isWinner ? "text-5xl text-primary" : "text-3xl text-foreground/80"
-                        }`}
+                    {isWinner ? (
+                      // Sized to fit inside the marker lines: name + label stay below the 4.6rem row height
+                      <motion.div
+                        initial={{ scale: 0.85, opacity: 0.6 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: "spring", stiffness: 260, damping: 16 }}
+                        className="text-center"
                       >
-                        {c.name}
+                        <div
+                          className="font-display leading-none text-primary text-[clamp(1.75rem,6vw,2.6rem)] whitespace-nowrap"
+                          style={{ textShadow: "0 0 18px color-mix(in oklab, var(--ember) 70%, transparent)" }}
+                        >
+                          {c.name}
+                        </div>
+                        <div className="mt-1.5 text-xs font-semibold uppercase leading-none tracking-[0.3em] text-gold">
+                          {factionLabels[lang][c.faction]}
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <div className={`text-center ${isResultLocked ? "opacity-50" : ""}`}>
+                        <div className="font-display leading-tight text-3xl text-foreground/80">{c.name}</div>
+                        <div className="text-sm uppercase tracking-widest text-muted-foreground">
+                          {factionLabels[lang][c.faction]}
+                        </div>
                       </div>
-                      <div
-                        className={`text-sm uppercase tracking-widest ${
-                          isWinner ? "text-gold/80" : "text-muted-foreground"
-                        }`}
-                      >
-                        {factionLabels[lang][c.faction]}
-                      </div>
-                    </div>
+                    )}
                   </div>
                 );
               })}
