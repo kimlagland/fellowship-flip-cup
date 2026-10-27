@@ -433,30 +433,6 @@ export function CharacterWheel() {
 
       {/* Reel */}
       <div className="flex flex-col items-center gap-6 lg:col-span-8">
-        {currentPlayer && spinning && (
-          <div className="text-center">
-            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">{t.spinningFor}</div>
-            <div className="font-display text-5xl uppercase text-primary">{currentPlayer}</div>
-          </div>
-        )}
-        {!spinning && highlight && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
-              {assignments[assignments.length - 1]?.player} {t.got}
-            </div>
-            <div className="font-display text-5xl uppercase text-primary">{highlight.name}</div>
-          </motion.div>
-        )}
-        {!currentPlayer && !highlight && (
-          <div className="text-center">
-            <div className="font-display text-3xl uppercase text-muted-foreground">{t.idleReel}</div>
-          </div>
-        )}
-
         <div className="relative w-full max-w-3xl">
           {/* Pointers */}
           <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 z-20">
@@ -544,6 +520,31 @@ export function CharacterWheel() {
           >
             <div className="w-1.5 h-6 bg-background rounded-full" />
           </motion.div>
+        </div>
+        <div className="min-h-[5.5rem] flex items-center justify-center">
+        {currentPlayer && spinning && (
+          <div className="text-center">
+            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">{t.spinningFor}</div>
+            <div className="font-display text-5xl uppercase text-primary">{currentPlayer}</div>
+          </div>
+        )}
+        {!spinning && highlight && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
+              {assignments[assignments.length - 1]?.player} {t.got}
+            </div>
+            <div className="font-display text-5xl uppercase text-primary">{highlight.name}</div>
+          </motion.div>
+        )}
+        {!currentPlayer && !highlight && (
+          <div className="text-center">
+            <div className="font-display text-3xl uppercase text-muted-foreground">{t.idleReel}</div>
+          </div>
+        )}
         </div>
 
         {/* Assignments */}
