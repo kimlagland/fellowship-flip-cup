@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Pause, Play, RotateCcw, Skull, Undo2, Crown, Flame, BarChart3, Trash2, Eye } from "lucide-react";
+import { Pause, Play, RotateCcw, Skull, Undo2, Crown, Flame, BarChart3, Trash2, Eye, Info } from "lucide-react";
 import { useLanguage } from "@/i18n";
-import type { Character } from "@/data/characters";
+import { characterRules, factionLabels, findRelations, relationDetail, relationLabel, type Character } from "@/data/characters";
 import { wrathCards, type WrathCard } from "@/data/sauronsWrath";
 import { playEliminate, playRumble, playVictory } from "@/lib/sound";
 import { SoundToggle } from "@/components/SoundToggle";
@@ -52,6 +52,7 @@ const S = {
     leaderboard: "Segerliga", wins: "vinster", bestChar: "Dödligaste karaktär", firstOut: "Oftast först ute", firstOutChar: "Första offret (karaktär)", teamWins: "vinner",
     factionWins: "Goda vs Onda", good: "Goda", evil: "Onda", neutral: "Neutrala", clear: "Rensa statistik",
     noStats: "Inga matcher spelade än i kväll.", saved: "Matchen sparad!", dismiss: "Uppfattat", history: "Matcher i kväll", outAt: "ute",
+    showInfo: "Visa karaktärens regler", playedBy: "spelas av", rules: "Regler / förmågor", connections: "Kopplingar i matchen", ally: "Allierad", enemy: "Fiende",
   },
   en: {
     title: "Battle in progress", desc: "Mark who gets knocked out. Last one standing wins.",
@@ -62,6 +63,7 @@ const S = {
     leaderboard: "Leaderboard", wins: "wins", bestChar: "Deadliest character", firstOut: "Most often first out", firstOutChar: "First victim (character)", teamWins: "win",
     factionWins: "Good vs Evil", good: "Good", evil: "Evil", neutral: "Neutral", clear: "Clear stats",
     noStats: "No matches played tonight yet.", saved: "Match saved!", dismiss: "Got it", history: "Tonight's matches", outAt: "out",
+    showInfo: "Show character rules", playedBy: "played by", rules: "Rules / abilities", connections: "Connections in this match", ally: "Ally", enemy: "Enemy",
   },
 };
 
@@ -81,12 +83,17 @@ export function ActiveGameView({ open, onOpenChange, assignments, teams = null }
   const [tab, setTab] = useState<"game" | "stats">("game");
   const [savedMsg, setSavedMsg] = useState(false);
   const deck = useRef<number[]>([]);
+  const [info, setInfo] = useState<Assignment | null>(null);
+  const infoRelations = useMemo(
+    () => (info ? findRelations(assignments.map((a) => a.character.name)).filter((r) => r.a === info.character.name || r.b === info.character.name) : []),
+    [info, assignments],
+  );
 
   // Fresh match on open
   useEffect(() => {
     if (!open) return;
     setStats(loadStats());
-    setElapsed(0); setRunning(true); setOut({}); setWinners(null); setCard(null); setTab("game"); setSavedMsg(false);
+    setElapsed(0); setRunning(true); setOut({}); setWinners(null); setCard(null); setInfo(null); setTab("game"); setSavedMsg(false);
     setNextWrath(randInterval());
   }, [open]);
 
@@ -173,7 +180,13 @@ export function ActiveGameView({ open, onOpenChange, assignments, teams = null }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-[1400px] sm:h-[92vh] sm:rounded-sm p-0 overflow-hidden bg-background/95 border-primary/30 flex flex-col">
+      <DialogContent
+        // Escape closes an open overlay first instead of the whole match view
+        onEscapeKeyDown={(e) => {
+          if (card) { e.preventDefault(); setCard(null); }
+          else if (info) { e.preventDefault(); setInfo(null); }
+        }}
+        className="w-screen max-w-none h-[100dvh] rounded-none sm:w-[95vw] sm:max-w-[1400px] sm:h-[92vh] sm:rounded-sm p-0 overflow-hidden bg-background/95 border-primary/30 flex flex-col">
         <DialogHeader className="shrink-0 px-6 pt-5 pb-3 border-b border-border/40">
           <DialogTitle className="text-center font-display text-5xl uppercase text-primary">{tab === "game" ? s.title : s.stats}</DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">{s.desc}</DialogDescription>
@@ -231,11 +244,13 @@ export function ActiveGameView({ open, onOpenChange, assignments, teams = null }
                     const isOut = a.player in out;
                     return (
                       <div key={a.player} className={`bento p-4 flex items-center justify-between gap-3 transition-opacity ${isOut ? "opacity-45" : ""}`} style={{ borderLeft: `4px solid ${factionColor(a.character.faction)}` }}>
-                        <div className="min-w-0">
+                        <button type="button" onClick={() => setInfo(a)} title={s.showInfo} className="group min-w-0 flex-1 text-left">
                           <div className="font-display text-2xl truncate">{a.player}</div>
-                          <div className="text-sm uppercase tracking-widest text-primary truncate">{a.character.name}</div>
+                          <div className="text-sm uppercase tracking-widest text-primary truncate group-hover:underline">
+                            {a.character.name} <Info className="inline h-3.5 w-3.5 align-[-2px] opacity-60 group-hover:opacity-100" />
+                          </div>
                           {isOut && <div className="text-sm text-muted-foreground"><Skull className="inline h-4 w-4 mr-1" />{s.out} {fmt(out[a.player])}</div>}
-                        </div>
+                        </button>
                         <div className="flex gap-1 shrink-0">
                           {isOut ? (
                             <Button size="sm" variant="ghost" onClick={() => revive(a.player)}><Undo2 className="h-4 w-4 mr-1" />{s.undo}</Button>
@@ -262,6 +277,49 @@ export function ActiveGameView({ open, onOpenChange, assignments, teams = null }
         </div>
 
         <AnimatePresence>
+          {info && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-40 flex items-center justify-center bg-background/85 backdrop-blur p-4 sm:p-6" onClick={() => setInfo(null)}>
+              <motion.div initial={{ scale: 0.92, y: 12 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }} className="bento max-w-2xl w-full max-h-full flex flex-col overflow-hidden" style={{ borderLeft: `6px solid ${factionColor(info.character.faction)}` }} onClick={(e) => e.stopPropagation()}>
+                <div className="shrink-0 px-6 pt-6 pb-4 border-b border-border/40">
+                  <div className="text-sm uppercase tracking-[0.3em] text-muted-foreground">{factionLabels[lang][info.character.faction]} — {s.playedBy} {info.player}</div>
+                  <div className="font-display text-5xl uppercase text-primary leading-none mt-1">{info.character.name}</div>
+                  {info.player in out && <div className="mt-2 text-sm text-muted-foreground"><Skull className="inline h-4 w-4 mr-1" />{s.out} {fmt(out[info.player])}</div>}
+                </div>
+                <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+                  <div>
+                    <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-2">{s.rules}</h4>
+                    <ul className="space-y-2 text-lg list-disc list-outside pl-5 leading-relaxed">
+                      {characterRules(info.character, lang).map((r, i) => <li key={i}>{r}</li>)}
+                    </ul>
+                  </div>
+                  {info.character.quote && <div className="italic text-lg text-accent">"{info.character.quote}"</div>}
+                  {infoRelations.length > 0 && (
+                    <div>
+                      <h4 className="text-sm uppercase tracking-widest text-muted-foreground mb-2">{s.connections}</h4>
+                      <ul className="space-y-2">
+                        {infoRelations.map((r, i) => {
+                          const other = r.a === info.character.name ? r.b : r.a;
+                          const color = r.kind === "ally" ? "var(--color-good)" : "var(--color-evil)";
+                          return (
+                            <li key={i} className="rounded-sm bg-background/60 px-3 py-2 border border-border/40" style={{ borderLeft: `3px solid ${color}` }}>
+                              <div className="font-display text-lg leading-tight">
+                                <span style={{ color }}>{r.kind === "ally" ? s.ally : s.enemy}</span>{" "}
+                                {assignments.find((x) => x.character.name === other)?.player} <span className="text-muted-foreground">({other})</span>
+                              </div>
+                              <div className="text-base text-foreground/85">{relationLabel(r, lang)}: {relationDetail(r, lang)}</div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                <div className="shrink-0 px-6 py-3 border-t border-border/40 flex justify-center">
+                  <Button onClick={() => setInfo(null)} variant="outline" className="rounded-sm h-11 px-8">{s.close}</Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
           {card && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center bg-background/85 backdrop-blur p-6" onClick={() => setCard(null)}>
               <motion.div initial={{ scale: 0.7, rotate: -3 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0.8, opacity: 0 }} className="bento ring-glow max-w-xl w-full p-8 text-center border-primary" onClick={(e) => e.stopPropagation()}>
