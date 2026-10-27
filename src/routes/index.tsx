@@ -54,7 +54,7 @@ function Index() {
       <TvToggle />
       <CastButton />
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border/50">
+      <section className="relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-30 blur-3xl"
             style={{ background: "radial-gradient(circle, oklch(0.7 0.25 45), transparent 70%)" }} />
@@ -85,8 +85,8 @@ function Index() {
       </section>
 
       {/* Wheel */}
-      <section id="wheel" className="relative py-20 sm:py-28 border-b border-border/40" style={{
-        background: "linear-gradient(180deg, transparent, color-mix(in oklab, var(--ember) 8%, transparent), transparent)",
+      <section id="wheel" className="relative py-20 sm:py-28" style={{
+        background: "linear-gradient(180deg, transparent 0%, color-mix(in oklab, var(--ember) 6%, transparent) 50%, transparent 100%)",
       }}>
         <div className="max-w-6xl 2xl:max-w-[90rem] mx-auto px-4 sm:px-6">
           <div className="text-center md:text-left mb-14 max-w-3xl">
@@ -190,7 +190,7 @@ function Index() {
         })}
       </div>
 
-      <footer className="w-full border-t border-border/40 py-14 text-sm text-muted-foreground">
+      <footer className="w-full py-14 text-sm text-muted-foreground">
         <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center px-6 text-center">
           <div className="mb-5 h-0.5 w-20 bg-primary/70" />
           <p className="font-display text-2xl uppercase text-foreground">{t.footerQuote}</p>

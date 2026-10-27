@@ -10,7 +10,7 @@ export function RuleSection({
   children: ReactNode;
 }) {
   return (
-    <section className="border-t border-border/60 py-8 sm:py-10 space-y-5">
+    <section className="border-t border-border/25 first:border-t-0 lg:[&:nth-child(2)]:border-t-0 py-8 sm:py-10 space-y-5">
       {eyebrow && (
         <div className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{eyebrow}</div>
       )}
