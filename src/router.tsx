@@ -5,8 +5,13 @@ import { routeTree } from "./routeTree.gen";
 export const getRouter = () => {
   const queryClient = new QueryClient();
 
+  if (typeof window !== "undefined") {
+    console.log("DEBUG PATHNAME:", window.location.pathname);
+  }
+
   const router = createRouter({
     routeTree,
+    basepath: "/fellowship-flip-cup",
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
