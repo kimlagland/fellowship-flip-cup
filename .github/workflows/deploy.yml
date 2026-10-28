@@ -44,14 +44,19 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Create GitHub Pages entry points
+        run: |
+            if [ -f .output/public/_shell.html ]; then
+            cp .output/public/_shell.html .output/public/index.html
+            cp .output/public/_shell.html .output/public/404.html
+            else
+            cp .output/public/index.html .output/public/404.html
+            fi
+
       - name: Fix GitHub Pages paths
         run: |
             find .output/public -type f -name "*.html" -exec sed -i 's|="/assets/|="/fellowship-flip-cup/assets/|g' {} +
             find .output/public -type f -name "*.html" -exec sed -i "s|='/assets/|='/fellowship-flip-cup/assets/|g" {} +
-
-      - name: Create GitHub Pages fallback
-        run: |
-            cp .output/public/index.html .output/public/404.html
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
