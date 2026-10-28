@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Pause, Play, RotateCcw, Skull, Undo2, Crown, Flame, BarChart3, Trash2, Eye, Info } from "lucide-react";
+import { Pause, Play, RotateCcw, Skull, Undo2, Crown, Flame, BarChart3, Trash2, Eye, Info, History } from "lucide-react";
 import { useLanguage } from "@/i18n";
 import { characterRules, factionLabels, findRelations, relationDetail, relationLabel, type Character } from "@/data/characters";
 import { wrathCards, type WrathCard } from "@/data/sauronsWrath";
@@ -80,6 +80,9 @@ export function ActiveGameView({ open, onOpenChange, assignments, teams = null }
   const [winners, setWinners] = useState<string[] | null>(null);
   const winner = winners?.[0] ?? null;
   const [card, setCard] = useState<WrathCard | null>(null);
+  const [lastCard, setLastCard] = useState<WrathCard | null>(null);
+  const [cardAuto, setCardAuto] = useState(false);
+  const [cardKey, setCardKey] = useState(0);
   const [auto, setAuto] = useState(true);
   // Must start above 0, otherwise the countdown fires a card the instant the view opens
   const [nextWrath, setNextWrath] = useState(() => randInterval());
@@ -109,9 +112,18 @@ export function ActiveGameView({ open, onOpenChange, assignments, teams = null }
 
   const drawWrath = () => {
     if (deck.current.length === 0) deck.current = [...wrathCards.keys()].sort(() => Math.random() - 0.5);
-    setCard(wrathCards[deck.current.pop()!]);
+    const next = wrathCards[deck.current.pop()!];
+    setCard(next); setLastCard(next); setCardAuto(true); setCardKey((k) => k + 1);
     playRumble();
   };
+  const showLast = () => { if (lastCard) { setCard(lastCard); setCardAuto(false); } };
+
+  // Auto-close a freshly drawn wrath card after 10 seconds
+  useEffect(() => {
+    if (!card || !cardAuto) return;
+    const id = setTimeout(() => setCard(null), 10000);
+    return () => clearTimeout(id);
+  }, [card, cardAuto, cardKey]);
 
   // Automatic wrath countdown
   useEffect(() => {
@@ -248,6 +260,7 @@ export function ActiveGameView({ open, onOpenChange, assignments, teams = null }
                 </div>
                 <div className="bento p-5 space-y-3">
                   <Button onClick={drawWrath} disabled={!!winner} className="w-full h-14 text-lg rounded-sm whitespace-normal"><Eye className="h-5 w-5 mr-2" />{s.wrath}</Button>
+                  <Button variant="outline" size="sm" onClick={showLast} disabled={!lastCard} className="w-full rounded-sm"><History className="h-4 w-4 mr-1" />{lang === "sv" ? "Senaste kort" : "Last card"}</Button>
                   <label className="flex items-center justify-between gap-3 text-sm cursor-pointer">
                     <span><span className="font-semibold">{s.auto}</span><br /><span className="text-muted-foreground">{s.autoHint}</span></span>
                     <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className="h-5 w-5 accent-[var(--color-primary)]" />
@@ -372,6 +385,11 @@ export function ActiveGameView({ open, onOpenChange, assignments, teams = null }
                 <div className="font-display text-5xl uppercase text-primary my-2">{card[lang].title}</div>
                 <p className="text-xl leading-relaxed text-foreground">{card[lang].text}</p>
                 <Button onClick={() => setCard(null)} className="mt-6 rounded-sm h-12 px-8">{s.dismiss}</Button>
+                {cardAuto && (
+                  <div className="mt-5 h-1.5 w-full overflow-hidden rounded-sm bg-muted">
+                    <motion.div key={cardKey} initial={{ width: "100%" }} animate={{ width: "0%" }} transition={{ duration: 10, ease: "linear" }} className="h-full bg-primary" />
+                  </div>
+                )}
               </motion.div>
             </motion.div>
           )}
