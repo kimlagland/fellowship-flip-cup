@@ -36,6 +36,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Fix GitHub Pages asset paths
+        run: |
+          find .output/public -type f -name "*.html" -exec sed -i 's|="/assets/|="/fellowship-flip-cup/assets/|g' {} +
+          find .output/public -type f -name "*.html" -exec sed -i "s|='/assets/|='/fellowship-flip-cup/assets/|g" {} +
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
