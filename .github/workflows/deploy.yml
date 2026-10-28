@@ -41,6 +41,10 @@ jobs:
           find .output/public -type f -name "*.html" -exec sed -i 's|="/assets/|="/fellowship-flip-cup/assets/|g' {} +
           find .output/public -type f -name "*.html" -exec sed -i "s|='/assets/|='/fellowship-flip-cup/assets/|g" {} +
 
+      - name: Create GitHub Pages fallback
+        run: |
+            cp .output/public/index.html .output/public/404.html
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
