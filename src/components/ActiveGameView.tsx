@@ -8,6 +8,10 @@ import { characterRules, factionLabels, findRelations, relationDetail, relationL
 import { wrathCards, type WrathCard } from "@/data/sauronsWrath";
 import { playEliminate, playRumble, playVictory } from "@/lib/sound";
 import { SoundToggle } from "@/components/SoundToggle";
+import { QRCodeSVG } from "qrcode.react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { makeRoomCode, roomChannel, type RemoteCommand, type RemoteState } from "@/lib/remote";
 
 interface Assignment { player: string; character: Character }
 
@@ -52,7 +56,7 @@ const S = {
     leaderboard: "Segerliga", wins: "vinster", bestChar: "Dödligaste karaktär", firstOut: "Oftast först ute", firstOutChar: "Första offret (karaktär)", teamWins: "vinner",
     factionWins: "Goda vs Onda", good: "Goda", evil: "Onda", neutral: "Neutrala", clear: "Rensa statistik",
     noStats: "Inga matcher spelade än i kväll.", saved: "Matchen sparad!", dismiss: "Uppfattat", history: "Matcher i kväll", outAt: "ute",
-    showInfo: "Visa karaktärens regler", playedBy: "spelas av", rules: "Regler / förmågor", connections: "Kopplingar i matchen", ally: "Allierad", enemy: "Fiende",
+    remote: "Styr från mobilen", remoteHint: "Skanna koden för fjärrkontroll och ditt karaktärskort.", showInfo: "Visa karaktärens regler", playedBy: "spelas av", rules: "Regler / förmågor", connections: "Kopplingar i matchen", ally: "Allierad", enemy: "Fiende",
   },
   en: {
     title: "Battle in progress", desc: "Mark who gets knocked out. Last one standing wins.",
@@ -63,7 +67,7 @@ const S = {
     leaderboard: "Leaderboard", wins: "wins", bestChar: "Deadliest character", firstOut: "Most often first out", firstOutChar: "First victim (character)", teamWins: "win",
     factionWins: "Good vs Evil", good: "Good", evil: "Evil", neutral: "Neutral", clear: "Clear stats",
     noStats: "No matches played tonight yet.", saved: "Match saved!", dismiss: "Got it", history: "Tonight's matches", outAt: "out",
-    showInfo: "Show character rules", playedBy: "played by", rules: "Rules / abilities", connections: "Connections in this match", ally: "Ally", enemy: "Enemy",
+    remote: "Control from your phone", remoteHint: "Scan the code for the remote and your character card.", showInfo: "Show character rules", playedBy: "played by", rules: "Rules / abilities", connections: "Connections in this match", ally: "Ally", enemy: "Enemy",
   },
 };
 
@@ -132,8 +136,40 @@ export function ActiveGameView({ open, onOpenChange, assignments, teams = null }
     }
   }, [alive.length, open]);
 
-  const eliminate = (p: string) => { setOut({ ...out, [p]: elapsed }); playEliminate(); };
-  const revive = (p: string) => { const n = { ...out }; delete n[p]; setOut(n); if (winners) setWinners(null); };
+  const eliminate = (p: string) => { setOut((o) => (p in o ? o : { ...o, [p]: elapsed })); playEliminate(); };
+  const revive = (p: string) => { setOut((o) => { const n = { ...o }; delete n[p]; return n; }); setWinners(null); };
+
+  // Phone remote: shared broadcast room, phones send commands, host pushes state
+  const [roomCode] = useState(() => makeRoomCode());
+  const [origin, setOrigin] = useState("");
+  useEffect(() => { setOrigin(window.location.origin); }, []);
+  const remoteUrl = `${origin}/remote/${roomCode}`;
+  const channel = useRef<RealtimeChannel | null>(null);
+  const snapshot: RemoteState = {
+    players: assignments.map((a) => ({ player: a.player, character: a.character.name, faction: a.character.faction })),
+    out, running, elapsed, winners,
+  };
+  const latest = useRef({ snapshot, eliminate, revive, drawWrath, winner });
+  latest.current = { snapshot, eliminate, revive, drawWrath, winner };
+  const pushState = () => channel.current?.send({ type: "broadcast", event: "state", payload: latest.current.snapshot });
+
+  useEffect(() => {
+    if (!open) return;
+    const ch = supabase.channel(roomChannel(roomCode), { config: { broadcast: { self: false } } });
+    ch.on("broadcast", { event: "cmd" }, ({ payload }) => {
+      const cmd = payload as RemoteCommand; const l = latest.current;
+      if (cmd.action === "eliminate" && !l.winner) l.eliminate(cmd.player);
+      else if (cmd.action === "revive") l.revive(cmd.player);
+      else if (cmd.action === "wrath" && !l.winner) l.drawWrath();
+      else if (cmd.action === "toggle") setRunning((r) => !r);
+      else if (cmd.action === "hello") pushState();
+    });
+    ch.subscribe((status) => { if (status === "SUBSCRIBED") pushState(); });
+    channel.current = ch;
+    return () => { supabase.removeChannel(ch); channel.current = null; };
+  }, [open, roomCode]);
+
+  useEffect(() => { if (open) pushState(); }, [open, out, running, winners, elapsed, assignments]);
 
   const finish = () => {
     if (!winners || !winner) return;
@@ -217,6 +253,14 @@ export function ActiveGameView({ open, onOpenChange, assignments, teams = null }
                     <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className="h-5 w-5 accent-[var(--color-primary)]" />
                   </label>
                   {auto && !winner && <div className="text-sm text-muted-foreground">{s.next} <span className="tabular-nums text-foreground">{fmt(nextWrath)}</span></div>}
+                </div>
+                <div className="bento p-5 flex items-center gap-4">
+                  {origin && <div className="shrink-0 bg-white p-2 rounded-sm"><QRCodeSVG value={remoteUrl} size={112} /></div>}
+                  <div className="min-w-0">
+                    <div className="font-semibold">{s.remote}</div>
+                    <div className="text-sm text-muted-foreground">{s.remoteHint}</div>
+                    <div className="font-display text-3xl tracking-[0.3em] text-primary">{roomCode}</div>
+                  </div>
                 </div>
               </div>
 
