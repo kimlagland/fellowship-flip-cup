@@ -39,7 +39,7 @@ jobs:
           find .output/public -maxdepth 3 -type f | sort
 
           echo "=== INDEX ==="
-          grep -oE '.{0,100}(fellowship-flip-cup|__TSR|location|href=|src=).{0,150}' .output/public/index.html | head -100 || true
+          grep -a -oE '.{0,100}(fellowship-flip-cup|__TSR|location|href=|src=).{0,150}' .output/public/index.html | head -100 || true
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
