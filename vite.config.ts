@@ -8,11 +8,12 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   base: "/fellowship-flip-cup/",
+
   tanstackStart: {
     server: { entry: "server" },
-    prerender: {
+
+    spa: {
       enabled: true,
-      crawlLinks: true,
     },
   },
 });
