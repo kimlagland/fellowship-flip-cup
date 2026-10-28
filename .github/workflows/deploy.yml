@@ -46,12 +46,16 @@ jobs:
 
       - name: Create GitHub Pages entry points
         run: |
-            if [ -f .output/public/_shell.html ]; then
-            cp .output/public/_shell.html .output/public/index.html
-            cp .output/public/_shell.html .output/public/404.html
-            else
-            cp .output/public/index.html .output/public/404.html
-            fi
+          if [ -f .output/public/_shell.html ]; then
+          cp .output/public/_shell.html .output/public/index.html
+          cp .output/public/_shell.html .output/public/404.html
+          elif [ -f .output/public/index.html ]; then
+          cp .output/public/index.html .output/public/404.html
+          else
+          echo "ERROR: Neither _shell.html nor index.html exists"
+          find .output/public -maxdepth 2 -type f | sort
+          exit 1
+          fi
 
       - name: Fix GitHub Pages paths
         run: |
