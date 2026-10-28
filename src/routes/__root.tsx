@@ -11,7 +11,7 @@ import {
 
 import { LanguageProvider } from "@/i18n";
 
-import appCss from "../styles.css?url";
+import "../styles.css";
 
 function NotFoundComponent() {
   return (
@@ -94,10 +94,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Bebas+Neue&display=swap",
-      },
-      {
-        rel: "stylesheet",
-        href: appCss,
       },
     ],
   }),
