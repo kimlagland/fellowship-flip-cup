@@ -59,8 +59,8 @@ jobs:
 
       - name: Fix GitHub Pages paths
         run: |
-            find .output/public -type f -name "*.html" -exec sed -i 's|="/assets/|="/fellowship-flip-cup/assets/|g' {} +
-            find .output/public -type f -name "*.html" -exec sed -i "s|='/assets/|='/fellowship-flip-cup/assets/|g" {} +
+          find .output/public -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" \) \
+          -exec sed -i 's|/assets/|/fellowship-flip-cup/assets/|g' {} +
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
